@@ -11,6 +11,14 @@ import csv
 metadataCount = {};
 fileDictionary = {};
 
+TOTAL_STR = 'TOTAL'
+BASE_COUNT = 0
+INCR_AMNT = 1
+METADATA_FILE_NAME = 'metadata'
+
+
+metadataCount[TOTAL_STR] = BASE_COUNT
+
 #Recieve an output directory
 #Read in each file from root Dir
 #While reading each file write to a map that contains filename and row count
@@ -29,12 +37,11 @@ def parseCSV(batchID, outputDir, rootDir, partitionCols):
 		with open (rootDir + '/' + fileName) as fileConts:
 			for line in fileConts:
 				partition = parseLine(line, partitionCols)
-				if partition not in metadataCount:
-					metadataCount[partition] = 0
-				metadataCount[partition] = metadataCount[partition] + 1
-				if partition not in fileDictionary:
-					fileDictionary[partition] = outputDir + '/' + partition + batchID + ".csv"
-				outputFile = fileDictionary[partition]
+				
+				updateMetadata(partition,INCR_AMNT)
+
+				outputFileDir = getFileOutputDirectory(outputDir + '/data/' + batchID , partition)
+				outputFile = outputFileDir + '/' + batchID + '.csv'
 				writeRow(outputFile,line)
 
 
@@ -83,12 +90,38 @@ def parseLine(line, partitionCols):
 	return partitionOutput
 
 
+#Obtains the file output directory for data and metadata files
+#  baseOutputRootDir - The base root where output dir will be
+#  partition - Used to generate a unique and valid directory, kept in a dictionary for reuse
+#Returns output directory for data and metadata
+def getFileOutputDirectory(baseOutputRootDir, partition):
+	if partition not in fileDictionary:
+		fileDictionary[partition] = baseOutputRootDir + '/' + partition
+	outputFile = fileDictionary[partition]
+	return outputFile
 
 
+#Updates metadata counts based on partition and count
+#  partition - The partition that will be referenced in metadata and file name
+#  count - The incremental amount metadata counts will be updated by
+#Does not return anything
+def updateMetadata(partition, count):
+	if partition not in metadataCount:
+		metadataCount[partition] = BASE_COUNT
+	metadataCount[partition] = metadataCount[partition] + count
+	metadataCount[TOTAL_STR] = metdataCount[TOTAL_STR] + count
 
 
-
-
-
-
+#Appends all metadata information to an output metadata file
+#  outputDir - Base output directory where the metadata file will be placed
+#  batchID - The current batchID for where the metadata will be placed
+#Does not return anything and cleans up after itself
+def writeMetadata(outputDir, batchID):
+	fileOutputDir = getFileOutputDirectory(outputDir + '/metadata/' + batchID)
+	outputFile = fileOutputDir + METADATA_FILE_NAME + '.csv'
+	with open(outputFile , 'a') as metadataFile:
+		for key in metadataCount:
+			nextLine = key + ',' + metadataCount[key]
+			logging.info('Counts: ' + nextLine)
+			metadataFile.write(nextLine)
 
