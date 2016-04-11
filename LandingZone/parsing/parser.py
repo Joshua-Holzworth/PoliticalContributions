@@ -1,4 +1,4 @@
-#!/usr/bind/python
+#!/usr/bin/python
 #
 #####
 ##	Author Joshua Holzworth
@@ -16,7 +16,7 @@ BASE_COUNT = 0
 INCR_AMNT = 1
 METADATA_FILE_NAME = 'metadata'
 
-
+#s
 metadataCount[TOTAL_STR] = BASE_COUNT
 
 #Recieve an output directory
@@ -40,7 +40,8 @@ def parseCSV(batchID, outputDir, rootDir, partitionCols):
 				
 				updateMetadata(partition,INCR_AMNT)
 
-				outputFileDir = getFileOutputDirectory(outputDir + '/data/' + batchID , partition)
+				outputFileDir = getFileOutputDirectory(outputDir + 'data/' + batchID , partition)
+				validateOutput(outputFileDir)
 				outputFile = outputFileDir + '/' + batchID + '.csv'
 				writeRow(outputFile,line)
 
@@ -109,7 +110,7 @@ def updateMetadata(partition, count):
 	if partition not in metadataCount:
 		metadataCount[partition] = BASE_COUNT
 	metadataCount[partition] = metadataCount[partition] + count
-	metadataCount[TOTAL_STR] = metdataCount[TOTAL_STR] + count
+	metadataCount[TOTAL_STR] = metadataCount[TOTAL_STR] + count
 
 
 #Appends all metadata information to an output metadata file
@@ -117,11 +118,13 @@ def updateMetadata(partition, count):
 #  batchID - The current batchID for where the metadata will be placed
 #Does not return anything and cleans up after itself
 def writeMetadata(outputDir, batchID):
-	fileOutputDir = getFileOutputDirectory(outputDir + '/metadata/' + batchID)
+	fileOutputDir = outputDir + '/metadata'
+	validateOutput(fileOutputDir)
+	fileOutputDir = fileOutputDir + '/' + batchID
 	outputFile = fileOutputDir + METADATA_FILE_NAME + '.csv'
 	with open(outputFile , 'a') as metadataFile:
 		for key in metadataCount:
-			nextLine = key + ',' + metadataCount[key]
+			nextLine = key + ',' + str(metadataCount[key]) + '\n'
 			logging.info('Counts: ' + nextLine)
 			metadataFile.write(nextLine)
 
