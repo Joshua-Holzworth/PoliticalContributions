@@ -29,7 +29,7 @@ metadataCount[TOTAL_STR] = BASE_COUNT
 #  rootDir - The directory where the previous files will be held
 #  partitionCols - A list of numbers that specficies which columns are going to be partitioned on
 #Function returns a map of metadata (Output File, Total Row Count)
-def parseCSV(batchID, outputDir, rootDir, partitionCols):
+def parseCSVAndWrite(batchID, outputDir, rootDir, partitionCols):
 	validateOutput(outputDir)
 	toParseFileNames = listDirectory(rootDir)
 	print toParseFileNames
@@ -84,7 +84,7 @@ def listDirectory(rootDir):
 def parseLine(line, partitionCols):
 	partitionOutput = ""
 
-	for result in csv.reader([line]):
+	for result in csv.reader([line],quotechar="\""):
 		for partCol in partitionCols:
 			partitionOutput = partitionOutput + result[partCol]
 	partitionOutput = partitionOutput.replace(" ","")
