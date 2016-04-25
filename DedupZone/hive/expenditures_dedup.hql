@@ -1,4 +1,4 @@
-INSERT OVERWRITE DIRECTORY '${hiveconf:output_directory}'
+INSERT OVERWRITE TABLE '${hiveconf:output_table}'
 SELECT
   collect_set(committee_id)[0],
   collect_set(candidate_id)[0],

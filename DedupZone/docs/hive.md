@@ -2,7 +2,7 @@
 Description: Unions incoming data (pz) and already stored data (fz), dedups, and stores the result into a new directory
 
 Parameters:
-* output_directory - the directory where the deduped data will go (e.g. '/user/root/DZ/tfz')
+* output_table - the table where the deduped data will go
 * pz_table - name of pz table
 * fz_table - name of fz table
 * pz_batch_min - lowest batch partition to query on (inclusive)
