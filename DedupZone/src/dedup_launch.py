@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import argparse
-import subprocess
-import shlex
+import src.py3.utils as utils
 
 def get_dedup_command(command_args):
     command = 'hive --hiveconf output_table=' + command_args.output_table
@@ -38,9 +37,9 @@ def main():
     expenditures_dedup_command = get_expenditures_dedup_command(args)
 
     print("Contributions dedup run")
-    run_command(contributions_dedup_command)
+    utils.run_command(contributions_dedup_command)
     print("\nExpenditures dedup run")
-    run_command(expenditures_dedup_command)
+    utils.run_command(expenditures_dedup_command)
 
 if __name__ == '__main__':
     main()
