@@ -9,3 +9,17 @@ Notes: Because the data has commas enclosed in quotation marks at the same time 
 a SerDe is required. The one used is the built in (hive 0.14+) OpenCSVSerde. Even though the table definitions contain ints, this SerDe casts all values
 to strings in an outstanding act of poor code design. If you run DESCRIBE <table_name> it will list every column as being of type string. If data types
 end up being important, a hive view that casts every field into its proper data type should be considered.
+
+#### add_partition.hql
+Parameters:
+* table - table name
+* partition_name - partition name to add
+
+#### drop_partition.hql
+Parameters:
+* table - table name
+* partition_name - partition name to drop
+
+#### drop_table.hql
+Parameters:
+* table - table name to drop

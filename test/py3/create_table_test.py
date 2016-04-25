@@ -21,9 +21,9 @@ expenditures_directory = '/user/root/LZ/expenditures'
 table_creation_script_path = '../../src/HiveDDL/create_tables.hql'
 
 command = 'hive -hiveconf contributions_directory=' + contributions_directory
-command += ' -hiveconf expenditures_directory=' + expenditures_directory
-command += ' -hiveconf contributions_table_name=' + contributions_table_name
-command += ' -hiveconf expenditures_table_name=' + expenditures_table_name
+command += ' --hiveconf expenditures_directory=' + expenditures_directory
+command += ' --hiveconf contributions_table_name=' + contributions_table_name
+command += ' --hiveconf expenditures_table_name=' + expenditures_table_name
 command += ' -f ' + table_creation_script_path
 print('The command being run: \n' + str(command) + '\n')
 
