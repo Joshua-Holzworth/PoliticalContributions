@@ -1,20 +1,7 @@
-import subprocess
-import shlex
-
-def run_command(command):
-    process = subprocess.run(shlex.split(command), stderr=subprocess.PIPE)
-    stdout = process.stdout
-    stderr = process.stderr
-    
-    if stdout:
-        stdout = stdout.decode('utf-8') 
-    if stderr:
-        stderr = stderr.decode('utf-8')
-
-    return stdout, stderr
+import src.py3.utils as utils
 
 def __contains_count(command, string_to_check, check_stderr):
-    stdout, stderr = run_command(command);
+    stdout, stderr = utils.capture_command_output(command);
     output = stderr if check_stderr else stdout
 
     contains_count = len(output.split(string_to_check)) - 1  
@@ -51,7 +38,7 @@ def output_contains_more_than(command, string_to_check, contains_count_floor, ch
     return test_passed, output, contains_count
 
 def predicate_on_output(command, predicate, check_stderr=False):
-    stdout, stderr = run_command(command);
+    stdout, stderr = utils.capture_command_output(command);
     output = stderr if check_stderr else stdout
     test_passed = predicate(output)
 
