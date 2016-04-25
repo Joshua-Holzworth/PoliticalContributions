@@ -3,23 +3,39 @@
 ### General Project Structure
 
 PoliticalContributions /
+  
   src
+  
   test
+  
   hive
+  
   README.md
+  
   docs
+  
   subProj1
+  
   subProj2
+  
   .
+  
   .
+  
   .
+  
   subProjN
   
 Each Subject must contain the following sub directories or files:
+
 src
+
 test
+
 hive
+
 docs
+
 README.md
 
 
