@@ -13,12 +13,13 @@ end up being important, a hive view that casts every field into its proper data 
 #### add_partition.hql
 Parameters:
 * table - table name
-* partition_name - partition name to add
+* batch_id - the batch id of the partition to be added 
+* partition_path - location of partition being added
 
 #### drop_partition.hql
 Parameters:
 * table - table name
-* partition_name - partition name to drop
+* batch_id - the batch id of the partition to be removed
 
 #### drop_table.hql
 Parameters:
