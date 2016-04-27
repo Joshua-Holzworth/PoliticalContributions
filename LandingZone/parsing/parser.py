@@ -40,9 +40,9 @@ def parseCSVAndWrite(batchID, outputDir, rootDir, partitionCols):
 				
 				updateMetadata(partition,INCR_AMNT)
 
-				outputFileDir = getFileOutputDirectory(outputDir + 'data/' + batchID , partition)
+				outputFileDir = outputDir + 'data/batch_id=' + batchID 
 				validateOutput(outputFileDir)
-				outputFile = outputFileDir + '/' + batchID + '.csv'
+				outputFile = outputFileDir + '/' + partition + '.csv'
 				writeRow(outputFile,line)
 
 
@@ -118,10 +118,9 @@ def updateMetadata(partition, count):
 #  batchID - The current batchID for where the metadata will be placed
 #Does not return anything and cleans up after itself
 def writeMetadata(outputDir, batchID):
-	fileOutputDir = outputDir + '/metadata'
+	fileOutputDir = outputDir + '/metadata/batch_id='+batchID
 	validateOutput(fileOutputDir)
-	fileOutputDir = fileOutputDir + '/' + batchID
-	outputFile = fileOutputDir + METADATA_FILE_NAME + '.csv'
+	outputFile = fileOutputDir + '/' + METADATA_FILE_NAME + '.csv'
 	with open(outputFile , 'a') as metadataFile:
 		for key in metadataCount:
 			nextLine = key + ',' + str(metadataCount[key]) + '\n'

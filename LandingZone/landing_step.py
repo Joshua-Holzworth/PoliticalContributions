@@ -57,7 +57,7 @@ def cleanup(directory):
 	shutil.rmtree(directory)
 
 def usage():
-	print 'Usage'
+	print 'landing_steopy.py -b {BatchID} -l {LandingZone} -t {TransitionZone} -p {PartitionZone} -c {PartitionCols}'
 
 def main():
 	batchID = None
