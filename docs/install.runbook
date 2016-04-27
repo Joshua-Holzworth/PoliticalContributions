@@ -1,0 +1,12 @@
+Runbook for install.sh
+
+Run this script by cd'ing to the its directory and typing ". ./install.sh"
+It is important to you run the script with that extra '.' prepended to the command
+
+If you simply run the script without the extra '.', you need to manually source
+your .bash_profile with "source ~/.bash_profile" or simply exit and open a new
+session.
+
+You can ensure the script was successful by running "echo $PYTHONPATH". You should
+see the project root directory as one of the directories listed. If you don't get
+any output, then you probably need to source your .bash_profile
