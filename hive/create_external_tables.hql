@@ -1,7 +1,7 @@
 DROP TABLE ${hiveconf:contributions_table_name};
 DROP TABLE ${hiveconf:expenditures_table_name};
 
-CREATE TABLE ${hiveconf:contributions_table_name} (
+CREATE EXTERNAL TABLE ${hiveconf:contributions_table_name} (
   committee_id string,
   candidate_id string,
   candidate_name string,
@@ -21,12 +21,14 @@ CREATE TABLE ${hiveconf:contributions_table_name} (
   transaction_id string,
   election_type string
 )
+PARTITIONED BY (batch_id string)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
-);
+)
+LOCATION '${hiveconf:contributions_directory}';
 
-CREATE TABLE ${hiveconf:expenditures_table_name} (
+CREATE EXTERNAL TABLE ${hiveconf:expenditures_table_name} (
   committee_id string,
   candidate_id string,
   candidate_name string,
@@ -44,7 +46,9 @@ CREATE TABLE ${hiveconf:expenditures_table_name} (
   transaction_id string,
   election_type string
 )
+PARTITIONED BY (batch_id string)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
-);
+)
+LOCATION '${hiveconf:expenditures_directory}';
