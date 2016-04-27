@@ -1,5 +1,9 @@
+## Hive DDL scripts
+Scripts for hive DDL. Can be found in PROJECT_ROOT/hive
+
 #### create_tables.hql
 Description: Creates two hive external tables, one for contributions and one for expenditures based
+
 Parameters:
 * contributions_table_name - how this contributions table will be named in the hive metastore. (e.g. lz_contributions_batch2343)
 * contributions_directory - where the data lives for this table. Keep in mind this is an external table. (e.g. '/user/root/LZ/contributions/batch2343')

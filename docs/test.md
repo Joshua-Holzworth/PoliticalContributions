@@ -4,6 +4,7 @@ The tests require some data to test on, so a setup and teardown script is includ
 
 #### data_setup.py
 Description: Prepares testing data by creating folders in hdfs and putting test data into them
+
 Parameters:
 * -c or --contributions-path - the local path to the contributions data 
 * -e or --expenditures-path - the local path to the expenditures data 
