@@ -21,6 +21,7 @@ CREATE EXTERNAL TABLE ${hiveconf:contributions_table_name} (
   transaction_id string,
   election_type string
 )
+PARTITIONED BY (batch_id string)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
@@ -45,6 +46,7 @@ CREATE EXTERNAL TABLE ${hiveconf:expenditures_table_name} (
   transaction_id string,
   election_type string
 )
+PARTITIONED BY (batch_id string)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
