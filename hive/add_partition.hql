@@ -1,2 +1,2 @@
-ALTER TABLE ${hiveconf:table} ADD PARTITION (batch_id='${hiveconf:batch_id}')
+ALTER TABLE ${hiveconf:table} ADD IF NOT EXISTS PARTITION (batch_id='${hiveconf:batch_id}')
 LOCATION '${hiveconf:partition_path}';
