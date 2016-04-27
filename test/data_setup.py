@@ -1,19 +1,19 @@
 #!/usr/local/bin/python3 -B
 import argparse
-import os
 
+import src.py3.utils as utils
 import test.py3.conf as test_conf
 import test.py3.utils as test_utils
 
 def hdfs_mkdir(path):
     command = 'hadoop fs -mkdir -p ' + path
-    print(command)
-    os.system(command)
+    utils.log(command)
+    utils.run_command(command)
 
 def hdfs_copy_from_local(local_path, destination_path):
     command = 'hadoop fs -copyFromLocal ' + local_path + ' ' + destination_path
-    print(command)
-    os.system(command)
+    utils.log(command)
+    utils.run_command(command)
 
 def create_hdfs_directories():
     hdfs_mkdir(test_conf.lz_contributions_data_dir + '/' + test_conf.batch_id)

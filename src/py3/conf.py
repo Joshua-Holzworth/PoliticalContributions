@@ -22,7 +22,7 @@ fz_contributions_table = 'fz_contributions'
 fz_expenditures_table = 'fz_expenditures'
 
 create_tables_script_path = project_root_dir + '/hive/create_tables.hql'
-create_partitioned_tables_script_path = project_root_dir + '/hive/create_partitioned_tables.hql'
+create_external_tables_script_path = project_root_dir + '/hive/create_external_tables.hql'
 drop_table_script_path = project_root_dir + '/hive/drop_table.hql'
 add_partition_script_path = project_root_dir + '/hive/add_partition.hql'
 drop_partition_script_path = project_root_dir + '/hive/drop_partition.hql'

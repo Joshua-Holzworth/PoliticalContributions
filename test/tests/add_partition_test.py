@@ -14,9 +14,9 @@ def test_pz_contributions_partition_add():
     command += ' --hiveconf partition_path=' + test_conf.pz_contributions_data_dir + '/' + test_conf.batch_id
     command += ' -f ' + conf.add_partition_script_path
     
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
 
     return test_passed, output
     
@@ -27,9 +27,9 @@ def test_pz_expenditures_partition_add():
     command += ' --hiveconf partition_path=' + test_conf.pz_expenditures_data_dir + '/' + test_conf.batch_id
     command += ' -f ' + conf.add_partition_script_path
     
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
 
     return test_passed, output
 
@@ -39,9 +39,9 @@ def test_lz_contributions_partition_add():
     command += ' --hiveconf partition_path=' + test_conf.lz_contributions_data_dir + '/' + test_conf.batch_id
     command += ' -f ' + conf.add_partition_script_path
     
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
 
     return test_passed, output
     
@@ -52,42 +52,42 @@ def test_lz_expenditures_partition_add():
     command += ' --hiveconf partition_path=' + test_conf.lz_expenditures_data_dir + '/' + test_conf.batch_id
     command += ' -f ' + conf.add_partition_script_path
     
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)
 
     return test_passed, output
 
 def test_data_in_lz_contributions_table():
     command = "hive -e 'SELECT * FROM " + test_conf.lz_contributions_table + " LIMIT 1'"
 
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
     return test_passed, output
 
 def test_data_in_lz_expenditures_table():
     command = "hive -e 'SELECT * FROM " + test_conf.lz_expenditures_table + " LIMIT 1'"
 
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
     return test_passed, output
 
 def test_data_in_pz_contributions_table():
     command = "hive -e 'SELECT * FROM " + test_conf.pz_contributions_table + " LIMIT 1'"
 
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
     return test_passed, output
 
 def test_data_in_pz_expenditures_table():
     command = "hive -e 'SELECT * FROM " + test_conf.pz_expenditures_table + " LIMIT 1'"
 
-    print('The command being run: \n' + str(command) + '\n')
+    utils.log('The command being run: \n' + str(command) + '\n')
 
-    test_passed, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
+    test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'Fetched', NUM_OF_FETCHED_OCCURRENCES, check_stderr=True)
     return test_passed, output
 
 

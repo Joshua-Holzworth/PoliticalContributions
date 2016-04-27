@@ -3,11 +3,16 @@ import getpass
 import subprocess
 import shlex
 
+def log(message, **kwargs):
+    print(message)
+
 def run_command(command):
-    subprocess.run(shlex.split(command))
+    # see http://stackoverflow.com/questions/6466711/what-is-the-return-value-of-os-system-in-python/35362488#35362488
+    return os.system(command) >> 8
 
 def capture_command_output(command):
-    process = subprocess.run(shlex.split(command), stderr=subprocess.PIPE)
+    PIPE = subprocess.PIPE
+    process = subprocess.run(shlex.split(command), stdout=PIPE, stderr=PIPE)
     stdout = process.stdout
     stderr = process.stderr
 
@@ -16,7 +21,7 @@ def capture_command_output(command):
     if stderr:
         stderr = stderr.decode('utf-8')
 
-    return stdout, stderr
+    return process.returncode, stdout, stderr 
 
 def get_user():
     return getpass.getuser()
