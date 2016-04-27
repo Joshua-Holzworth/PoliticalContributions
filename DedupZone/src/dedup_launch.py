@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3 -B
 import argparse
 import src.py3.utils as utils
 

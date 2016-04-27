@@ -14,6 +14,9 @@ a SerDe is required. The one used is the built in (hive 0.14+) OpenCSVSerde. Eve
 to strings in an outstanding act of poor code design. If you run DESCRIBE <table_name> it will list every column as being of type string. If data types
 end up being important, a hive view that casts every field into its proper data type should be considered.
 
+#### create_partitioned_tables.hql
+Same as create_tables.hql, except the tables are partitioned
+
 #### add_partition.hql
 Parameters:
 * table - table name

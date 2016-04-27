@@ -12,7 +12,7 @@ Parameters:
 #### data_teardown.py
 Removes the testing folders and data from hdfs
 
-#### tests/create_table_test.py
+#### tests/create_tables_test.py
 Tests the creation of LZ and PZ tables by running the create_tables.hql script and 
 making sure the output has the proper number of "OK" statements. There should be a
  single "OK" for each DDL statement in create_tables.hql
