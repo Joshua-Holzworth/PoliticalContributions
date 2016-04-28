@@ -90,6 +90,7 @@ def setupScriptTrigger():
 				print "Invalid"
 			else:
 				print "TRIGGERED!"
+				#Run your default script
 			time.sleep(delay)
 
 
