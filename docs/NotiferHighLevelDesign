@@ -1,0 +1,26 @@
+PC Notifier High Level Design
+
+Notifier 1
+LZ Prep
+Trigger: Poll LZ for file
+Event: Send file with batch_id and partition LZ file
+
+Notifier 2
+LZ to PZ QA Check
+Trigger: Based on Singleton Python import
+Event: Run QA check log results of pass / failure create flag file for next Trigger
+
+Notifier 3
+Dedup Step
+Trigger: Based on Singleton Python import
+Event: Read in file run Dedup with flag file contents
+
+Notifier 4
+Dedup QA Check
+Trigger: Based on Singleton Python import
+Event: Checks everything in PZ landed into DZ
+
+Notifier 5
+FZ push
+Trigger: Based on Singleton Python import
+Event: Push all data from DZ to FZ
