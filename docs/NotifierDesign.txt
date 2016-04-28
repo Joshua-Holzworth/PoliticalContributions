@@ -1,0 +1,40 @@
+The Notifier will now follow the below flow.
+
+Do Until Killed:
+  Run Trigger script:
+  Parse Trigger Script JSON blob:
+  If blob contains trigger_status of triggered:
+    Generate Event Parameters from (Following order of priority) json trigger return and cfg set values
+    Run Event
+
+
+Trigger JSON blob example:
+Bare bone blob
+{
+  "trigger_status":"triggered/untiggered",
+  "params --Optional": { "param_name1" : "param_val1", "param_name2" : "param_val2" }
+}
+
+
+
+
+
+Outline of Notifier cfg.
+
+[Notifier]
+Name:
+StepName:
+[Trigger]
+Script:
+Params:
+[Event]
+Script:
+Params:
+[OptionalParam1]
+val:
+Script:
+Params:
+[OptionalParam2]
+val:
+Script:
+Params:
