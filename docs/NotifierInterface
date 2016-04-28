@@ -1,0 +1,14 @@
+Interface for trigger/event management
+
+
+Will be able to do:
+Set flags to kick off future triggers.
+Change step name / batch_Id with specific state (Such as Running/Stopped/Polling etc.)
+
+
+
+V1.0
+Should use a singleton and boolean/lists.
+
+V2.0
+Utilize HBASE for all updates/queries.
