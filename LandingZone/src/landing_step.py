@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -B
 #######
 ##	Author Joshua Holzworth
 #######
@@ -57,7 +57,7 @@ def cleanup(directory):
 	shutil.rmtree(directory)
 
 def usage():
-	print 'Usage'
+	print('Usage')
 
 def main():
 	batchID = None

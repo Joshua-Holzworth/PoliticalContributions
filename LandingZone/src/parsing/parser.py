@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -B
 #
 #####
 ##	Author Joshua Holzworth
@@ -32,7 +32,7 @@ metadataCount[TOTAL_STR] = BASE_COUNT
 def parseCSV(batchID, outputDir, rootDir, partitionCols):
 	validateOutput(outputDir)
 	toParseFileNames = listDirectory(rootDir)
-	print toParseFileNames
+	print(toParseFileNames)
 	for fileName in toParseFileNames:
 		with open (rootDir + '/' + fileName) as fileConts:
 			for line in fileConts:

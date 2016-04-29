@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3 -B
 import argparse
-import src.py3.utils as utils
-import src.py3.conf as conf
+import src.python.utils as utils
+import src.python.conf as conf
 
 def get_create_table_command(command_args):
     command = (

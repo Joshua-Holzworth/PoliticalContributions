@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #######
 ##	Author: Joshua Holzworth
 #######
@@ -11,7 +11,7 @@ import getopt
 APP_SCRIPT_NAME = 'notifier.py'
 
 def printHelp():
-	print 'health_check.py -b <batchID>'
+	print('health_check.py -b <batchID>')
 
 
 def main():
@@ -36,7 +36,7 @@ def main():
 		sections = out.split()
 		if len(out):
 			pid = sections[1]
-	print pid
+	print(pid)
 	return pid
 	
 if __name__ == "__main__":

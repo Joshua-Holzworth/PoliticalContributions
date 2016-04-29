@@ -1,9 +1,9 @@
 #!/usr/local/bin/python3 -B
-import src.py3.utils as utils
-import src.py3.conf as conf
-import test.py3.utils as test_utils
-import test.py3.conf as test_conf
-from test.py3.tester import Test
+import src.python.utils as utils
+import src.python.conf as conf
+import test.python.utils as test_utils
+import test.python.conf as test_conf
+from test.python.tester import Test
 
 NUM_OF_DDL_STATEMENTS = 1
 NUM_OF_FETCHED_OCCURRENCES = 1 # Number of times the string "Fetched" should occur in output

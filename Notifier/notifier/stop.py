@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #######
 ##	Author: Joshua Holzworth
 #######
@@ -18,7 +18,7 @@ KILL_CMD = 'kill '
 #Usage
 #Needs a batchID
 def printHelp():
-	print 'stop.py -b <batchID>'
+	print('stop.py -b <batchID>')
 
 #Obtains a batchID from the arguments
 #Checks to see if a process with the given batchID can be found

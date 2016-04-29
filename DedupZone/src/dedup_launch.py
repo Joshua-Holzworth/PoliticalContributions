@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3 -B
 import argparse
-import src.py3.utils as utils
+import src.python.utils as utils
 import conf as dz_conf
 
 def get_dedup_command(command_args):
