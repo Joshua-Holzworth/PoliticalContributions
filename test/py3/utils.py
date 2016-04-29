@@ -1,4 +1,4 @@
-import src.py3.utils as utils
+import src.python.utils as utils
 
 def __contains_count(command, string_to_check, check_stderr):
     exit_code, stdout, stderr = utils.capture_command_output(command);

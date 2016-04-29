@@ -1,9 +1,9 @@
-#!/usr/local/bin/python3 -B
+#!/usr/bin/python3 -B
 import argparse
 
-import src.py3.utils as utils
-import test.py3.conf as test_conf
-import test.py3.utils as test_utils
+import src.python.utils as utils
+import test.python.conf as test_conf
+import test.python.utils as test_utils
 
 def hdfs_mkdir(path):
     command = 'hadoop fs -mkdir -p ' + path

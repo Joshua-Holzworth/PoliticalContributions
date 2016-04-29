@@ -1,6 +1,6 @@
 import sys
 
-import src.py3.utils as utils
+import src.python.utils as utils
 
 class Test:
     def __init__(self, test_name, test_func):

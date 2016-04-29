@@ -1,4 +1,4 @@
-from src.py3 import utils
+from src.python import utils
 
 user = utils.get_user()
 project_root_dir = utils.get_project_root_dir()

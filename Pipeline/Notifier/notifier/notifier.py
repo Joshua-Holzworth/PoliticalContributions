@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #####
 ##	Author: Joshua Holzworth
 #####
@@ -63,18 +63,18 @@ delay=5
 #Does not return anything just creates the trigger process and waits for this notifier to be started
 def setupTrigger():
 	if config.has_section(TRIGGER_SECTION) == False:
-		print 'No trigger section in configs consumed. Shutting down process.'
+		print('No trigger section in configs consumed. Shutting down process.')
 	elif config.has_option(TRIGGER_SECTION,'Files'):
-		print 'Setting up trigger based on Files!'
+		print('Setting up trigger based on Files!')
 	elif config.has_option(TRIGGER_SECTION,TRIGGER_SCRIPT):
 		setupScriptTrigger()
 	else:
-		print 'FAILURE'
+		print('FAILURE')
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
-	print 'Setting up trigger based on Script!'
+	print('Setting up trigger based on Script!')
 	if config.has_option(TRIGGER_SECTION,SCRIPT_PARAMS):
 
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
@@ -87,9 +87,9 @@ def setupScriptTrigger():
 		while True:
 			returnCode = subprocess.call(cmd,shell=True,stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 			if returnCode != 0:
-				print "Invalid"
+				print("Invalid")
 			else:
-				print "TRIGGERED!"
+				print("TRIGGERED!")
 				#Run your default script
 			time.sleep(delay)
 
@@ -110,7 +110,7 @@ def listDirectory(rootDir):
 
 
 def printHelp():
-	print 'notifier.py -b <batchID> -c <?configs?>'
+	print('notifier.py -b <batchID> -c <?configs?>')
 
 
 def main():
