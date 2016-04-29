@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3 -B
 import argparse
 import src.python.utils as utils
-import conf as dz_conf
+import conf as pz_conf
 
 def get_dedup_command(command_args):
     command = 'hive --hiveconf output_table=' + command_args.output_table
@@ -13,12 +13,12 @@ def get_dedup_command(command_args):
 
 def get_contributions_dedup_command(command_args):
     command = get_dedup_command(command_args)
-    command += ' -f ' + dz_conf.contributions_dedup_script_path
+    command += ' -f ' + pz_conf.contributions_dedup_script_path
     return command
 
 def get_expenditures_dedup_command(command_args):
     command = get_dedup_command(command_args)
-    command += ' -f ' + dz_conf.expenditures_dedup_script_path
+    command += ' -f ' + pz_conf.expenditures_dedup_script_path
     return command
 
 def main():
