@@ -146,14 +146,8 @@ def startEventScript(paramDict):
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
-<<<<<<< HEAD
 	print('Setting up trigger based on Script!')
 	if config.has_option(TRIGGER_SECTION,SCRIPT_PARAMS):
-
-=======
-	print 'Setting up trigger based on Script!'
-	if config.has_option(TRIGGER_SECTION,PARAMS):
->>>>>>> upstream/v1.0
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
 		scriptParamsLiteral = config.get(TRIGGER_SECTION,PARAMS)
@@ -162,27 +156,18 @@ def setupScriptTrigger():
 		cmd = "python " + script+" "+scriptParams
 			
 		while True:
-<<<<<<< HEAD
-			returnCode = subprocess.call(cmd,shell=True,stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-			if returnCode != 0:
-				print("Invalid")
-			else:
-				print("TRIGGERED!")
-				#Run your default script
-=======
 			triggerProc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
 			#print triggerProc
 			output,error = triggerProc.communicate()
 			#print "OUTPUT" + output
-			print output
+			print(output)
 			jsonData = parseJson(output)
 			if 'triggered' in jsonData:
 				generateParameters(config)
 				eventParams = loadParameters(parameters,output)
 				if jsonData['triggered']:
 					startEventScript(eventParams)
-					print 'TRIGGERED!'
->>>>>>> upstream/v1.0
+					print('TRIGGERED!')
 			time.sleep(delay)
 
 
@@ -201,32 +186,33 @@ def listDirectory(rootDir):
 	return files
 
 
-def printHelp():
-	print('notifier.py -b <batchID> -c <?configs?>')
-
+def usage():
+	print('notifier.py -n <name> -c <?configs?>')
 
 def main():
 	configDir = None
-	batchID = None
+	name = None
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hb:c:")
+		opts, args = getopt.getopt(sys.argv[1:],"hn:c:")
 	except getopt.GetoptError:
-		printHelp()
+		usage()
 		sys.exit(0)
 	for opt, arg in opts:
 		if opt == '-h':
-			printHelp()
+			usage()
 			sys.exit(0)
+		elif opt in ("-n", "--name"):
+			name = arg
 		elif opt in ("-c", "--configs"):
 			configDir = arg
-		elif opt in ("-b","--batchID"):
-			batchID = arg
 
-	if configDir is not None and batchID is not None:
+	if configDir is not None and name is not None:
 		configs = listDirectory(configDir)
 		for cfg in configs:
 			loadConfig(configDir+cfg)
-
+	else:
+		usage()
+		sys.exit(0)
 	if config is not None:
 		generateParameters(config)
 	printParameters(parameters)
