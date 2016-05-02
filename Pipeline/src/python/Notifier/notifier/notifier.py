@@ -11,6 +11,8 @@ import sys
 import time
 import getopt
 import logging
+import json
+import re
 
 global config 
 config = None
@@ -41,14 +43,76 @@ def startScript(scriptName, parameters):
 #def start():
 
 #def stop():
-
+PARAMS = "Params"
 TRIGGER_SECTION = 'TriggerEvent'
 TRIGGER_SCRIPT = 'TriggerScript'
 SCRIPT_PARAMS = 'TriggerScriptParams'
 #In long milliseconds
 TRIGGER_DELAY = 'TriggerDelay'
 
+
+EVENT_SCRIPT = 'EventScript'
+EVENT_SECTION = 'Event'
+
 delay=5
+global parameters
+
+
+def obtainQueue(maxSize):
+	q = Queue(maxSize)
+	return q
+
+def parseJson(jsonLiteral):
+	jsonDict = json.loads(jsonLiteral)
+	return jsonDict
+
+def generateParameters(config):
+	global parameters
+	parameters = dict()
+	for section in config.sections():
+		#print section
+		sectionDict = dict(config.items(section))
+		if 'val' in sectionDict:
+			parameters[section] = str(sectionDict['val'])
+			#print sectionDict['val']
+		elif 'script' in sectionDict:
+			script = sectionDict['script']
+			params = ""
+			if 'params' in sectionDict:
+				params = sectionDict['params']
+			paramCmd = 'python ' + script + ' ' + params
+			#print "Running command: " + paramCmd
+			paramVal = getScriptResult(paramCmd)
+			parameters[section] = str(paramVal).strip()
+			#print "ParamVal: "+ paramVal
+	return
+
+def printParameters(paramDict):
+	for key in paramDict:
+		print str(key)
+		print paramDict[key]
+
+
+def getScriptResult(cmd):
+	proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+	output,error = proc.communicate()
+	return output
+
+def loadParameters(parameters, jsonLiteral):
+	print "LITERAL!" + jsonLiteral
+	jsonDict = parseJson(jsonLiteral)
+	newParams = parameters.copy()
+	newParams.update(jsonDict)
+	return newParams
+
+paramRegx = "\$(\w+)\s*"
+def replaceVarInParams(paramDict,paramLiteral):
+	print "Finding params inside: "+paramLiteral
+	paramMatches = re.findall(paramRegx,paramLiteral,re.M|re.I)
+	for paramMatch in paramMatches:
+		paramLiteral = re.sub("\$"+paramMatch, str(paramDict[paramMatch]),paramLiteral)
+	print "Final paramLiteral : "+paramLiteral
+	return paramLiteral
 
 #References the configuration files pulled in. 
 #If the TRIGGER_SECTION described above does not exist then 
@@ -64,33 +128,44 @@ delay=5
 def setupTrigger():
 	if config.has_section(TRIGGER_SECTION) == False:
 		print 'No trigger section in configs consumed. Shutting down process.'
-	elif config.has_option(TRIGGER_SECTION,'Files'):
-		print 'Setting up trigger based on Files!'
 	elif config.has_option(TRIGGER_SECTION,TRIGGER_SCRIPT):
 		setupScriptTrigger()
 	else:
 		print 'FAILURE'
 
+def startEventScript(paramDict):
+	printParameters(paramDict)
+	eventScript = config.get(EVENT_SECTION,EVENT_SCRIPT)
+	eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
+	eventParams = replaceVarInParams(paramDict,eventParamLiteral)
+	eventCmd = eventScript + " "+eventParams
+	print "EVENT CMD : "+eventCmd
+
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
 	print 'Setting up trigger based on Script!'
-	if config.has_option(TRIGGER_SECTION,SCRIPT_PARAMS):
-
+	if config.has_option(TRIGGER_SECTION,PARAMS):
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
-
-		scriptParams = config.get(TRIGGER_SECTION,SCRIPT_PARAMS)
+		scriptParamsLiteral = config.get(TRIGGER_SECTION,PARAMS)
+		scriptParams = replaceVarInParams(parameters,scriptParamsLiteral)
 		script = config.get(TRIGGER_SECTION,TRIGGER_SCRIPT)
 		cmd = "python " + script+" "+scriptParams
 			
 		while True:
-			returnCode = subprocess.call(cmd,shell=True,stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-			if returnCode != 0:
-				print "Invalid"
-			else:
-				print "TRIGGERED!"
-				#Run your default script
+			triggerProc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+			#print triggerProc
+			output,error = triggerProc.communicate()
+			#print "OUTPUT" + output
+			print output
+			jsonData = parseJson(output)
+			if 'triggered' in jsonData:
+				generateParameters(config)
+				eventParams = loadParameters(parameters,output)
+				if jsonData['triggered']:
+					startEventScript(eventParams)
+					print 'TRIGGERED!'
 			time.sleep(delay)
 
 
@@ -130,10 +205,14 @@ def main():
 		elif opt in ("-b","--batchID"):
 			batchID = arg
 
-	if configDir is not None:
+	if configDir is not None and batchID is not None:
 		configs = listDirectory(configDir)
-		for config in configs:
-			loadConfig(configDir+config)
+		for cfg in configs:
+			loadConfig(configDir+cfg)
+
+	if config is not None:
+		generateParameters(config)
+	printParameters(parameters)
 
 	setupTrigger()
 
