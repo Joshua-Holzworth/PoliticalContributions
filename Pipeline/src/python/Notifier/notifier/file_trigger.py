@@ -31,7 +31,10 @@ def main():
 	if fileSet:
 		exists = os.path.exists(fileToWatch)
 		rc = 0 if exists else 1
-	print(rc)
+
+	jsonOutput = "{\"triggered\":" + ("true" if exists else "false") + ", \"Parameter1\":\"override!\"}"
+	print(jsonOutput)
+
 	return rc
 
 if __name__ == "__main__":
