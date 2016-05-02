@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -B
 #######
 ##	Author: Joshua Holzworth
 #######
@@ -10,7 +10,7 @@ import os
 
 
 def printHelp():
-	print 'file_trigger.py -f <file>'
+	print('file_trigger.py -f <file>')
 
 def main():
 	fileToWatch = None
@@ -33,7 +33,7 @@ def main():
 		rc = 0 if exists else 1
 
 	jsonOutput = "{\"triggered\":" + ("true" if exists else "false") + ", \"Parameter1\":\"override!\"}"
-	print jsonOutput
+	print(jsonOutput)
 
 	return rc
 

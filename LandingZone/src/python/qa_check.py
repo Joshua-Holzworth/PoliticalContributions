@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -B
 
 ########
 ##	Author: Joshua Holzworth
@@ -36,14 +36,14 @@ def runHiveFile(hiveFile, parameters):
 
 
 def usage():
-	print 'qa_check.py -b {BatchID} -l {baseHDFSlocation} '
+	print('qa_check.py -b {BatchID} -l {baseHDFSlocation} ')
 
 def parseHiveOutput(output):
 	output = output.replace('\r','')
 	if output == "":
-		print "Success QA Check passes"
+		print("Success QA Check passes")
 	else:
-		print "Failure QA CHECK FAILS!"
+		print("Failure QA CHECK FAILS!")
 		#Should examine what sections fail and print those out
 		exit(414)
 

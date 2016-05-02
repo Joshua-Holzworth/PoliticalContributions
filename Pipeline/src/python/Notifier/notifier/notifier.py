@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #####
 ##	Author: Joshua Holzworth
 #####
@@ -126,12 +126,14 @@ def replaceVarInParams(paramDict,paramLiteral):
 #	Runs on a given time (expecting a delay to be set if not a default delay will be used)
 #Does not return anything just creates the trigger process and waits for this notifier to be started
 def setupTrigger():
-	if config.has_section(TRIGGER_SECTION) == False:
-		print 'No trigger section in configs consumed. Shutting down process.'
+	if not config.has_section(TRIGGER_SECTION):
+		print('No trigger section in configs consumed. Shutting down process.')
+	elif config.has_option(TRIGGER_SECTION,'Files'):
+		print('Setting up trigger based on Files!')
 	elif config.has_option(TRIGGER_SECTION,TRIGGER_SCRIPT):
 		setupScriptTrigger()
 	else:
-		print 'FAILURE'
+		print('FAILURE')
 
 def startEventScript(paramDict):
 	printParameters(paramDict)
@@ -144,8 +146,8 @@ def startEventScript(paramDict):
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
-	print 'Setting up trigger based on Script!'
-	if config.has_option(TRIGGER_SECTION,PARAMS):
+	print('Setting up trigger based on Script!')
+	if config.has_option(TRIGGER_SECTION,SCRIPT_PARAMS):
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
 		scriptParamsLiteral = config.get(TRIGGER_SECTION,PARAMS)
@@ -158,14 +160,14 @@ def setupScriptTrigger():
 			#print triggerProc
 			output,error = triggerProc.communicate()
 			#print "OUTPUT" + output
-			print output
+			print(output)
 			jsonData = parseJson(output)
 			if 'triggered' in jsonData:
 				generateParameters(config)
 				eventParams = loadParameters(parameters,output)
 				if jsonData['triggered']:
 					startEventScript(eventParams)
-					print 'TRIGGERED!'
+					print('TRIGGERED!')
 			time.sleep(delay)
 
 
@@ -185,8 +187,7 @@ def listDirectory(rootDir):
 
 
 def usage():
-	print 'notifier.py -n <name> -c <?configs?>'
-
+	print('notifier.py -n <name> -c <?configs?>')
 
 def main():
 	configDir = None

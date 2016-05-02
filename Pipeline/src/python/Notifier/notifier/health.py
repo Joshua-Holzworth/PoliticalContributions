@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #######
 ##	Author: Joshua Holzworth
 #######
@@ -16,8 +16,7 @@ HEALTH_CHECK_SCRIPT = 'health_check.py'
 KILL_CMD = 'kill '
 
 def printHelp():
-	print 'stop.py -b <batchID>'
-
+	print('stop.py -b <batchID>')
 
 def main():
 	batchID = None
@@ -32,7 +31,7 @@ def main():
 			sys.exit(0)
 		elif opt in ("-b", "--batchID"):
 			batchID = arg
-	healthProc = subprocess.Popen('python '+HEALTH_CHECK_SCRIPT+ ' -b '+batchID,stdout=subprocess.PIPE,shell=True)
+	healthProc = subprocess.Popen('python '+HEALTH_CHECK_SCRIPT+ ' -b '+str(batchID),stdout=subprocess.PIPE,shell=True)
 	output = healthProc.communicate()[0]
 	pid = int(output.strip())
 	if pid is not -1:
