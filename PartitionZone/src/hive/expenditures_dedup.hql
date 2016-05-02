@@ -1,3 +1,5 @@
+set hive.support.quoted.identifiers = none;
+
 INSERT OVERWRITE TABLE ${hiveconf:output_table}
 SELECT
   collect_set(committee_id)[0],
@@ -17,8 +19,8 @@ SELECT
   transaction_id,
   collect_set(election_type)[0]
 FROM (
-  SELECT * FROM ${hiveconf:pz_table}
-  WHERE batch_id >= ${hiveconf:pz_batch_min} AND batch_id <= ${hiveconf:pz_batch_max}
+  SELECT `(batch_id)?+.+` FROM ${hiveconf:pz_table}
+  WHERE batch_id >= '${hiveconf:pz_batch_min}' AND batch_id <= '${hiveconf:pz_batch_max}'
   UNION
   SELECT * FROM ${hiveconf:fz_table}
 ) as unionResult

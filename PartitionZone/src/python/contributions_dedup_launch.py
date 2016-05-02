@@ -16,11 +16,6 @@ def get_contributions_dedup_command(command_args):
     command += ' -f ' + pz_conf.contributions_dedup_script_path
     return command
 
-def get_expenditures_dedup_command(command_args):
-    command = get_dedup_command(command_args)
-    command += ' -f ' + pz_conf.expenditures_dedup_script_path
-    return command
-
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('--output-table', required=True)
@@ -31,15 +26,12 @@ def main():
 
     args = argparser.parse_args()
 
-    contributions_dedup_command = get_contributions_dedup_command(args)
-    expenditures_dedup_command = get_expenditures_dedup_command(args)
+    dedup_command = get_contributions_dedup_command(args)
 
     utils.log("Contributions dedup run")
-    contributions_exit_code, contributions_stdout, contributions_stderr = (
-        utils.capture_command_output(contributions_dedup_command))
-    utils.log("\nExpenditures dedup run")
-    expenditures_exit_code, expenditures_stdout, expenditures_stderr = (
-        utils.capture_command_output(expenditures_dedup_command))
+    utils.log(dedup_command)
+    exit_code, stdout, stderr = (utils.capture_command_output(dedup_command))
+    utils.log(stderr)
 
 if __name__ == '__main__':
     main()
