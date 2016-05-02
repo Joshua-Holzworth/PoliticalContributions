@@ -184,32 +184,34 @@ def listDirectory(rootDir):
 	return files
 
 
-def printHelp():
-	print 'notifier.py -b <batchID> -c <?configs?>'
+def usage():
+	print 'notifier.py -n <name> -c <?configs?>'
 
 
 def main():
 	configDir = None
-	batchID = None
+	name = None
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hb:c:")
+		opts, args = getopt.getopt(sys.argv[1:],"hn:c:")
 	except getopt.GetoptError:
-		printHelp()
+		usage()
 		sys.exit(0)
 	for opt, arg in opts:
 		if opt == '-h':
-			printHelp()
+			usage()
 			sys.exit(0)
+		elif opt in ("-n", "--name"):
+			name = arg
 		elif opt in ("-c", "--configs"):
 			configDir = arg
-		elif opt in ("-b","--batchID"):
-			batchID = arg
 
-	if configDir is not None and batchID is not None:
+	if configDir is not None and name is not None:
 		configs = listDirectory(configDir)
 		for cfg in configs:
 			loadConfig(configDir+cfg)
-
+	else:
+		usage()
+		sys.exit(0)
 	if config is not None:
 		generateParameters(config)
 	printParameters(parameters)
