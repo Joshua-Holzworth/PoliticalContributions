@@ -12,7 +12,7 @@ def test_lz_table_creation():
     command += ' --hiveconf expenditures_directory=' + test_conf.lz_expenditures_data_dir
     command += ' --hiveconf contributions_table_name=' + test_conf.lz_contributions_table
     command += ' --hiveconf expenditures_table_name=' + test_conf.lz_expenditures_table
-    command += ' -f ' + conf.create_external_tables_script_path
+    command += ' -f ' + conf.create_partitioned_tables_script_path
     utils.log('The command being run: \n' + str(command) + '\n')
     
     test_passed, exit_code, output, contains_count = test_utils.output_contains_exactly(command, 'OK', NUM_OF_DDL_STATEMENTS, check_stderr=True)

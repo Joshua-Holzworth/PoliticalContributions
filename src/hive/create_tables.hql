@@ -24,7 +24,8 @@ CREATE TABLE ${hiveconf:contributions_table_name} (
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
-);
+)
+LOCATION '${hiveconf:contributions_directory}';
 
 CREATE TABLE ${hiveconf:expenditures_table_name} (
   committee_id string,
@@ -47,4 +48,5 @@ CREATE TABLE ${hiveconf:expenditures_table_name} (
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
 WITH SERDEPROPERTIES (
   "separatorChar" = ","
-);
+)
+LOCATION '${hiveconf:expenditures_directory}'
