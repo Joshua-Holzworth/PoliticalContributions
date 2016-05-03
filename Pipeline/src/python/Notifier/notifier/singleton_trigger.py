@@ -11,15 +11,16 @@ import notifier_singleton
 
 
 def usage():
-	print 'singleton_trigger.py -c <configFileName> -s <stepName>'
+	print 'singleton_trigger.py -c <configFileName> -s <stepName> -p <previousStep>'
 
 
 STATUS = 'Status'
 def main():
+	prevStepName = None
 	stepName = None
 	configFileName = None
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hc:s:")
+		opts, args = getopt.getopt(sys.argv[1:],"hc:s:p:")
 	except getopt.GetoptError:
 		usage()
 		sys.exit(0)
@@ -31,19 +32,40 @@ def main():
 			configFileName = arg
 		elif opt in ("-s", "--stepName"):
 			stepName = arg
+		elif opt in ("-p", "--prevStepName"):
+			prevStepName = arg
 
-	if stepName is None:
+	if stepName is None or configFileName is None:
 		usage()
 		sys.exit(0)
 
 	notifier_singleton.readConfig(configFileName)
 	curStatus = notifier_singleton.stepRunning(stepName)
+
+	#Defaults to -1
+	prevBatchID = -1
+
+	if prevStepName is not None:
+		prevStatus =  notifier_singleton.stepRunning(prevStepName)
+		prevBatchID = int(notifier_singleton.getBatchID(prevStepName))
+		if prevStatus == "Running" or prevStatus == "Stopped":
+			prevBatchID = prevBatchID - 1
+
+	triggered = True if curStatus == 'Stopped' or curStatus == 'Finished' else False
+
+	currentBatchID = int(notifier_singleton.getBatchID(stepName))
+
 	
-	if curStatus == 'Stopped':
+	triggered = triggered and (True if currentBatchID <= prevBatchID else False)
+	
+	if prevStatus == "Running" or prevStatus == "Stopped" and str(currentBatchID) == str(prevBatchID):
+		triggered = False
+
+	if triggered:
 		notifier_singleton.startStep(stepName)
 		notifier_singleton.writeConfig(configFileName)
 
-	jsonOutput = "{\"triggered\":" + ("true" if curStatus == 'Stopped' else "false") + "}"
+	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + stepName + "\", \"batchid\" : \" " + str(currentBatchID) + " \"}"
 	print jsonOutput
 	return 0
 

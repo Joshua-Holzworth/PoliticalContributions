@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3 -B
 #######
 ##	Author Joshua Holzworth
 #######
@@ -41,7 +41,6 @@ def setupLLZ(landingZone, localLandingZone):
 #Puts the parsed files (which are parsed by partition)
 #Into the transitionZone which is located on local file system
 def parseLLZ(batchID,transitionZone,localLandingZone,partitionCols):
-	localLandingZone = localLandingZone + '/batch_id='+batchID+'/'
 	parser.parseCSV(batchID,transitionZone,localLandingZone,{int(partitionCols)})
 
 #Writes stored metadata from parsing to the transition zone
@@ -58,7 +57,7 @@ def cleanup(directory):
 	shutil.rmtree(directory)
 
 def usage():
-	print 'landing_steopy.py -b {BatchID} -l {LandingZone} -t {TransitionZone} -p {PartitionZone} -c {PartitionCols}'
+	print('landing_step.py -b {BatchID} -l {LandingZone} -t {TransitionZone} -p {PartitionZone} -c {PartitionCols}')
 
 def main():
 	batchID = None
@@ -93,7 +92,7 @@ def main():
 		usage()
 		sys.exit(1)
 
-	setupLLZ(landingZone,localLandingZone)
+	setupLLZ(landingZone+'/batch_id='+batchID,localLandingZone)
 	parseLLZ(batchID,transitionZone,localLandingZone,partitionCols)
 	writeMetadata(transitionZone,batchID)
 	pushToPZ(transitionZone,partitionZone)

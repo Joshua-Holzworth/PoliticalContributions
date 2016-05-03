@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #####
 ##	Author: Joshua Holzworth
 #####
@@ -138,13 +138,28 @@ def startEventScript(paramDict):
 	eventScript = config.get(EVENT_SECTION,EVENT_SCRIPT)
 	eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
 	eventParams = replaceVarInParams(paramDict,eventParamLiteral)
-	eventCmd = eventScript + " "+eventParams
-	print("EVENT CMD : "+eventCmd)
+	eventCmd = "python " + eventScript + " "+eventParams
+
+	rc = subprocess.call(eventCmd,shell=True,stdout=subprocess.PIPE)
+	print("EVENT CMD : "+eventCmd + " rc: " +str(rc))
+	return rc
+
+
+USHER_SECTION = "Usher"
+USHER_SCRIPT = "UsherScript"
+def executeUsherScript(paramDict):
+	usherScript = config.get(USHER_SECTION,USHER_SCRIPT)
+	usherParamLiteral = config.get(USHER_SECTION,PARAMS)
+	usherParams = replaceVarInParams(paramDict,usherParamLiteral)
+	usherCmd = "python " + usherScript + " " + usherParams
+	rc = subprocess.call(usherCmd,shell=True,stdout=subprocess.PIPE)
+	print("Ushering: " +usherCmd)
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
 	print('Setting up trigger based on Script!')
+	global delay
 	if config.has_option(TRIGGER_SECTION,PARAMS):
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
@@ -164,8 +179,11 @@ def setupScriptTrigger():
 				generateParameters(config)
 				eventParams = loadParameters(parameters,output)
 				if jsonData['triggered']:
-					startEventScript(eventParams)
-					print('TRIGGERED!')
+					eventRC = startEventScript(eventParams)
+					eventParams.update({'EventRC':eventRC})
+					if eventRC == 0:
+						executeUsherScript(eventParams)
+						
 			time.sleep(delay)
 
 
@@ -186,7 +204,6 @@ def listDirectory(rootDir):
 
 def usage():
 	print('notifier.py -n <name> -c <?configs?>')
-
 
 def main():
 	configDir = None

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3 -B
 #######
 ##	Author: Joshua Holzworth
 #######
@@ -16,7 +16,7 @@ HEALTH_CHECK_SCRIPT = 'health_check.py'
 #Usage
 #Needs a batch ID config is also mandiatory for right now
 def printHelp():
-	print 'start.py -b <batchID> -c <?configs?>'
+	print('start.py -b <batchID> -c <?configs?>')
 
 #Checks all arguments
 #Expects a config directory and a batchID

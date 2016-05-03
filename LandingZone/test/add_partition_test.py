@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3 -B
+#!/usr/bin/python3 -B
 import src.py3.utils as utils
 import src.py3.conf as conf
 import test.py3.utils as test_utils
