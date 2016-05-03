@@ -51,7 +51,7 @@ def main():
 		if prevStatus == "Running" or prevStatus == "Stopped":
 			prevBatchID = prevBatchID - 1
 
-	triggered = True if curStatus == 'Stopped' or curStatus == 'Finished' else False
+	triggered = True if curStatus == 'Stopped' or curStatus == 'Started' else False
 
 	currentBatchID = int(notifier_singleton.getBatchID(stepName))
 
@@ -62,7 +62,7 @@ def main():
 		triggered = False
 
 	if triggered:
-		notifier_singleton.startStep(stepName)
+		notifier_singleton.runningStep(stepName)
 		notifier_singleton.writeConfig(configFileName)
 
 	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + stepName + "\", \"batchid\" : \" " + str(currentBatchID) + " \"}"

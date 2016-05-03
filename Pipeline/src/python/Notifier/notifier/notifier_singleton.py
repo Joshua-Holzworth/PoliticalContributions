@@ -17,9 +17,13 @@ def readConfig(configFileName):
 		config.read(configFileName)
 
 
-def startStep(stepName):
+def runningStep(stepName):
 	if stepRunning(stepName) is not 'Running':
 		config.set(stepName,STATUS,'Running')
+
+def startStep(stepName):
+	if stepRunning(stepName) is not 'Running':
+		config.set(stepName,STATUS,'Started')
 
 def stopEvent(stepName):
 	config.set(stepName,STATUS,'Stopped')
