@@ -107,11 +107,11 @@ def loadParameters(parameters, jsonLiteral):
 
 paramRegx = "\$(\w+)\s*"
 def replaceVarInParams(paramDict,paramLiteral):
-	print "Finding params inside: "+paramLiteral
+	print("Finding params inside: "+paramLiteral)
 	paramMatches = re.findall(paramRegx,paramLiteral,re.M|re.I)
 	for paramMatch in paramMatches:
 		paramLiteral = re.sub("\$"+paramMatch, str(paramDict[paramMatch]),paramLiteral)
-	print "Final paramLiteral : "+paramLiteral
+	print("Final paramLiteral : "+paramLiteral)
 	return paramLiteral
 
 #References the configuration files pulled in. 
@@ -127,11 +127,11 @@ def replaceVarInParams(paramDict,paramLiteral):
 #Does not return anything just creates the trigger process and waits for this notifier to be started
 def setupTrigger():
 	if config.has_section(TRIGGER_SECTION) == False:
-		print 'No trigger section in configs consumed. Shutting down process.'
+		print('No trigger section in configs consumed. Shutting down process.')
 	elif config.has_option(TRIGGER_SECTION,TRIGGER_SCRIPT):
 		setupScriptTrigger()
 	else:
-		print 'FAILURE'
+		print('FAILURE')
 
 def startEventScript(paramDict):
 	printParameters(paramDict)
@@ -139,12 +139,12 @@ def startEventScript(paramDict):
 	eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
 	eventParams = replaceVarInParams(paramDict,eventParamLiteral)
 	eventCmd = eventScript + " "+eventParams
-	print "EVENT CMD : "+eventCmd
+	print("EVENT CMD : "+eventCmd)
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
-	print 'Setting up trigger based on Script!'
+	print('Setting up trigger based on Script!')
 	if config.has_option(TRIGGER_SECTION,PARAMS):
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
@@ -158,14 +158,14 @@ def setupScriptTrigger():
 			#print triggerProc
 			output,error = triggerProc.communicate()
 			#print "OUTPUT" + output
-			print output
+			print(output)
 			jsonData = parseJson(output)
 			if 'triggered' in jsonData:
 				generateParameters(config)
 				eventParams = loadParameters(parameters,output)
 				if jsonData['triggered']:
 					startEventScript(eventParams)
-					print 'TRIGGERED!'
+					print('TRIGGERED!')
 			time.sleep(delay)
 
 
@@ -185,7 +185,7 @@ def listDirectory(rootDir):
 
 
 def usage():
-	print 'notifier.py -n <name> -c <?configs?>'
+	print('notifier.py -n <name> -c <?configs?>')
 
 
 def main():

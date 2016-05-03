@@ -14,7 +14,7 @@ global config
 config = None
 
 def loadConfig(configFileName):
-	print "Reading in config file: "+configFileName
+	print("Reading in config file: "+configFileName)
 	global config
 	if config == None:
 		config = ConfigParser.ConfigParser()
@@ -22,7 +22,7 @@ def loadConfig(configFileName):
 
 	
 def usage():
-	print "stop.py -c <ConfigFileName> -n <NotifierName> -A <AllNotifiers--optional>"
+	print("stop.py -c <ConfigFileName> -n <NotifierName> -A <AllNotifiers--optional>")
 
 
 

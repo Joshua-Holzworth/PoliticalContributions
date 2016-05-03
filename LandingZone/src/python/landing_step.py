@@ -41,6 +41,7 @@ def setupLLZ(landingZone, localLandingZone):
 #Puts the parsed files (which are parsed by partition)
 #Into the transitionZone which is located on local file system
 def parseLLZ(batchID,transitionZone,localLandingZone,partitionCols):
+	localLandingZone = localLandingZone + '/batch_id='+batchID+'/'
 	parser.parseCSV(batchID,transitionZone,localLandingZone,{int(partitionCols)})
 
 #Writes stored metadata from parsing to the transition zone
