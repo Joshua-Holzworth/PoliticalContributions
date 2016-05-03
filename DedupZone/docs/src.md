@@ -6,3 +6,10 @@ Parameters:
 * -dz or --dz-table-name - the name of the dz table
 * --pz-batch-min - the lower value for the range of partitions in the pz table (inclusive)
 * --pz-batch-max - the higher value for the range of partitions in the pz table (inclusive)
+
+#### push_to_fz.py
+Description: Write all rows in dz table into fz table
+
+Parameters:
+* -fz or --fz-table-name - the name of fz table
+* -dz or --dz-table-name - the name of dz table
