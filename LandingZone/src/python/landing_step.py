@@ -92,7 +92,7 @@ def main():
 		usage()
 		sys.exit(1)
 
-	setupLLZ(landingZone,localLandingZone)
+	setupLLZ(landingZone+'/batch_id='+batchID,localLandingZone)
 	parseLLZ(batchID,transitionZone,localLandingZone,partitionCols)
 	writeMetadata(transitionZone,batchID)
 	pushToPZ(transitionZone,partitionZone)

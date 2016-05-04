@@ -14,7 +14,7 @@ global config
 config = None
 
 def loadConfig(configFileName):
-	print "Reading in config file: "+configFileName
+	print("Reading in config file: "+configFileName)
 	global config
 	if config == None:
 		config = ConfigParser.ConfigParser()
@@ -22,7 +22,7 @@ def loadConfig(configFileName):
 
 	
 def usage():
-	print "health_check.py -c <ConfigFileName>"
+	print("health_check.py -c <ConfigFileName>")
 
 
 
@@ -62,7 +62,7 @@ def main():
 		if section != "Pipeline":
 			notifier = obtainNotifier(section)
 			notifier = notifier.strip()
-			print section + " : "+ ("Running" if notifier else "Stopped")
+			print(section + " : "+ ("Running" if notifier else "Stopped"))
 
 
 

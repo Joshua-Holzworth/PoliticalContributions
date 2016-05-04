@@ -25,9 +25,13 @@ import sys
 import os
 import subprocess
 import re
+import src.python.conf as conf
+
 
 def runHiveFile(hiveFile, parameters):
-	hiveCmd = "hive -f " + hiveFile + " "+parameters
+	rootDir =  conf.project_root_dir + '/LandingZone/src/'
+	hiveCmd = "hive -f " + rootDir + hiveFile + " "+parameters
+	print "HiveCMD: " + hiveCmd
 	hiveProc = subprocess.Popen(hiveCmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	#hiveProc.stderr
 	output,error = hiveProc.communicate()
@@ -38,6 +42,7 @@ def runHiveFile(hiveFile, parameters):
 def usage():
 	print('qa_check.py -b {BatchID} -l {baseHDFSlocation} ')
 
+
 def parseHiveOutput(output):
 	output = output.replace('\r','')
 	if output == "":
@@ -47,12 +52,14 @@ def parseHiveOutput(output):
 		#Should examine what sections fail and print those out
 		exit(414)
 
+global batchID
+batchID = None
 def main():
 	#Takes in at least
 	#A batchID
 	#contributionsHDFS LOC
 	#expendentituresHDFS LOC
-
+	global batchID
 	batchID = None
 	baseHDFSLocation = None
 	try:
@@ -82,18 +89,18 @@ def main():
 	metadata_params = "--hiveconf metadataLoc="+baseHDFSLocation+"/metadata/"
 	partition_hql = hiveDir + "add_partition.hql"
 
-	#runHiveFile(metadata_hql,metadata_params)
-	#runHiveFile(pz_hql,pz_params)
+	runHiveFile(metadata_hql,metadata_params)
+	runHiveFile(pz_hql,pz_params)
 
 	#THIS SET OF 4 LINES NEEDS TO BE REFACTORED AT ANOTHER TIME
 	#WE NEED THIS TO BE DYNAMIC -- This'll take a lot of time where there are other tasks to be done
 	#For now this works and we'll get back to this when the time comes / backlog it
 	#Honestly this entire script needs refactoring 
 	partition1_args = "--hiveconf db_name=partition_zone --hiveconf table_name=metadata --hiveconf batch_id="+batchID
-	#runHiveFile(partition_hql,partition1_args)
+	runHiveFile(partition_hql,partition1_args)
 	
 	partition2_args = "--hiveconf db_name=partition_zone --hiveconf table_name=contributions --hiveconf batch_id="+batchID
-	#runHiveFile(partition_hql,partition2_args)
+	runHiveFile(partition_hql,partition2_args)
 	
 	qa_hql = hiveDir+"/pz_qa_check.hql"
 	qa_params = "--hiveconf table_name=contributions"

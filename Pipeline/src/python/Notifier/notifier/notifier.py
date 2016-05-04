@@ -107,11 +107,11 @@ def loadParameters(parameters, jsonLiteral):
 
 paramRegx = "\$(\w+)\s*"
 def replaceVarInParams(paramDict,paramLiteral):
-	print "Finding params inside: "+paramLiteral
+	print("Finding params inside: "+paramLiteral)
 	paramMatches = re.findall(paramRegx,paramLiteral,re.M|re.I)
 	for paramMatch in paramMatches:
 		paramLiteral = re.sub("\$"+paramMatch, str(paramDict[paramMatch]),paramLiteral)
-	print "Final paramLiteral : "+paramLiteral
+	print("Final paramLiteral : "+paramLiteral)
 	return paramLiteral
 
 #References the configuration files pulled in. 
@@ -126,10 +126,8 @@ def replaceVarInParams(paramDict,paramLiteral):
 #	Runs on a given time (expecting a delay to be set if not a default delay will be used)
 #Does not return anything just creates the trigger process and waits for this notifier to be started
 def setupTrigger():
-	if not config.has_section(TRIGGER_SECTION):
+	if config.has_section(TRIGGER_SECTION) == False:
 		print('No trigger section in configs consumed. Shutting down process.')
-	elif config.has_option(TRIGGER_SECTION,'Files'):
-		print('Setting up trigger based on Files!')
 	elif config.has_option(TRIGGER_SECTION,TRIGGER_SCRIPT):
 		setupScriptTrigger()
 	else:
@@ -140,14 +138,29 @@ def startEventScript(paramDict):
 	eventScript = config.get(EVENT_SECTION,EVENT_SCRIPT)
 	eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
 	eventParams = replaceVarInParams(paramDict,eventParamLiteral)
-	eventCmd = eventScript + " "+eventParams
-	print "EVENT CMD : "+eventCmd
+	eventCmd = "python " + eventScript + " "+eventParams
+
+	rc = subprocess.call(eventCmd,shell=True,stdout=subprocess.PIPE)
+	print("EVENT CMD : "+eventCmd + " rc: " +str(rc))
+	return rc
+
+
+USHER_SECTION = "Usher"
+USHER_SCRIPT = "UsherScript"
+def executeUsherScript(paramDict):
+	usherScript = config.get(USHER_SECTION,USHER_SCRIPT)
+	usherParamLiteral = config.get(USHER_SECTION,PARAMS)
+	usherParams = replaceVarInParams(paramDict,usherParamLiteral)
+	usherCmd = "python " + usherScript + " " + usherParams
+	rc = subprocess.call(usherCmd,shell=True,stdout=subprocess.PIPE)
+	print("Ushering: " +usherCmd)
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setupScriptTrigger():
 	print('Setting up trigger based on Script!')
-	if config.has_option(TRIGGER_SECTION,SCRIPT_PARAMS):
+	global delay
+	if config.has_option(TRIGGER_SECTION,PARAMS):
 		if config.has_option(TRIGGER_SECTION,TRIGGER_DELAY):
 			delay = float(config.get(TRIGGER_SECTION,TRIGGER_DELAY))
 		scriptParamsLiteral = config.get(TRIGGER_SECTION,PARAMS)
@@ -166,8 +179,11 @@ def setupScriptTrigger():
 				generateParameters(config)
 				eventParams = loadParameters(parameters,output)
 				if jsonData['triggered']:
-					startEventScript(eventParams)
-					print('TRIGGERED!')
+					eventRC = startEventScript(eventParams)
+					eventParams.update({'EventRC':eventRC})
+					if eventRC == 0:
+						executeUsherScript(eventParams)
+						
 			time.sleep(delay)
 
 
