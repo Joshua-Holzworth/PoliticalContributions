@@ -38,6 +38,7 @@ def runHiveFile(hiveFile, parameters):
 def usage():
 	print('qa_check.py -b {BatchID} -l {baseHDFSlocation} ')
 
+
 def parseHiveOutput(output):
 	output = output.replace('\r','')
 	if output == "":
@@ -47,12 +48,14 @@ def parseHiveOutput(output):
 		#Should examine what sections fail and print those out
 		exit(414)
 
+global batchID
+batchID = None
 def main():
 	#Takes in at least
 	#A batchID
 	#contributionsHDFS LOC
 	#expendentituresHDFS LOC
-
+	global batchID
 	batchID = None
 	baseHDFSLocation = None
 	try:
