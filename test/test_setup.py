@@ -50,18 +50,22 @@ def put_metadata_into_hdfs():
     hdfs_copy_from_local(test_conf.expenditures_partitioned_metadata_path, test_conf.pz_expenditures_metadata_dir + '/batch_id=' + test_conf.batch_id)
 
 def create_tables():
-    ddl.create_partitioned_tables(test_conf.pz_contributions_table,
-                                  test_conf.pz_contributions_data_dir,
-                                  test_conf.pz_expenditures_table,
-                                  test_conf.pz_expenditures_data_dir)
-    ddl.create_tables(test_conf.dz_contributions_table,
-                      test_conf.dz_contributions_dir,
-                      test_conf.dz_expenditures_table,
-                      test_conf.dz_expenditures_dir)
-    ddl.create_tables(test_conf.fz_contributions_table,
-                      test_conf.fz_contributions_dir,
-                      test_conf.fz_expenditures_table,
-                      test_conf.fz_expenditures_dir)
+    ddl.create_partitioned_contributions_table(
+            test_conf.pz_contributions_table,
+            test_conf.pz_contributions_data_dir)
+    ddl.create_partitioned_expenditures_table(
+            test_conf.pz_expenditures_table,
+            test_conf.pz_expenditures_data_dir)
+
+    ddl.create_contributions_table(test_conf.dz_contributions_table,
+                                   test_conf.dz_contributions_dir)
+    ddl.create_expenditures_table(test_conf.dz_expenditures_table,
+                                  test_conf.dz_expenditures_dir)
+
+    ddl.create_contributions_table(test_conf.fz_contributions_table,
+                                   test_conf.fz_contributions_dir)
+    ddl.create_expenditures_table(test_conf.fz_expenditures_table,
+                                  test_conf.fz_expenditures_dir)
 
 def add_partitions():
     partition = 'batch_id=' + test_conf.batch_id
