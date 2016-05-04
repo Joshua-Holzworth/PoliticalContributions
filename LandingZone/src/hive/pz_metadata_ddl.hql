@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS partition_zone;
 
 USE partition_zone;
 
-CREATE TABLE IF NOT EXISTS metadata
+CREATE EXTERNAL TABLE IF NOT EXISTS metadata
 (
 partition_name string,
 row_count int
