@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS contributions;
+USE contributions;
+
 set hive.support.quoted.identifiers = none;
 
 INSERT OVERWRITE TABLE ${hiveconf:output_table}
