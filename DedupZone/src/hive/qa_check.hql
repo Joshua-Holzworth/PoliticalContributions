@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS contributions;
+USE contributions;
+
 SELECT COUNT(*) FROM ${hiveconf:pz_table} pz
 LEFT JOIN ${hiveconf:dz_table} dz
 ON

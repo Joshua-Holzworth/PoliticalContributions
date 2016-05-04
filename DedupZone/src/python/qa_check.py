@@ -19,6 +19,7 @@ def main():
     utils.log(qa_check_command)
     exit_code, stdout, stderr = utils.capture_command_output(qa_check_command)
 
+    # stdout prints the result of the query, in this case it is the count
     if stdout.strip() == '0':
         utils.log('QA check passed')
     else:
