@@ -138,7 +138,7 @@ def startEventScript(paramDict):
 	eventScript = config.get(EVENT_SECTION,EVENT_SCRIPT)
 	eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
 	eventParams = replaceVarInParams(paramDict,eventParamLiteral)
-	eventCmd = "python " + eventScript + " "+eventParams
+	eventCmd = "python3 " + eventScript + " "+eventParams
 
 	rc = subprocess.call(eventCmd,shell=True,stdout=subprocess.PIPE)
 	print("EVENT CMD : "+eventCmd + " rc: " +str(rc))
@@ -151,7 +151,7 @@ def executeUsherScript(paramDict):
 	usherScript = config.get(USHER_SECTION,USHER_SCRIPT)
 	usherParamLiteral = config.get(USHER_SECTION,PARAMS)
 	usherParams = replaceVarInParams(paramDict,usherParamLiteral)
-	usherCmd = "python " + usherScript + " " + usherParams
+	usherCmd = "python3 " + usherScript + " " + usherParams
 	rc = subprocess.call(usherCmd,shell=True,stdout=subprocess.PIPE)
 	print("Ushering: " +usherCmd)
 
@@ -166,7 +166,7 @@ def setupScriptTrigger():
 		scriptParamsLiteral = config.get(TRIGGER_SECTION,PARAMS)
 		scriptParams = replaceVarInParams(parameters,scriptParamsLiteral)
 		script = config.get(TRIGGER_SECTION,TRIGGER_SCRIPT)
-		cmd = "python " + script+" "+scriptParams
+		cmd = "python3 " + script+" "+scriptParams
 			
 		while True:
 			triggerProc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)

@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS contributions (
   election_type string
 )
 PARTITIONED BY (batch_id string)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY ','
-LINES TERMINATED BY '\n'
-STORED AS TEXTFILE
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+  "separatorChar" = ","
+)
 LOCATION '${hiveconf:conLoc}';
