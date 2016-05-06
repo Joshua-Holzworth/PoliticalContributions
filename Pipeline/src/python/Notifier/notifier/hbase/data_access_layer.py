@@ -1,10 +1,9 @@
 from functools import partial as bind
 
-class BatchIdHelper():
+class DataAccessLayer():
     def __init__(self, connector, table_name):
         self.connector = connector
         self.table_name = table_name
-        self.row_key_cache = {}
 
     def get_step_batch(self, step_name, batch_id):
         row_key = self.__build_row_key(step_name, batch_id)
@@ -17,11 +16,8 @@ class BatchIdHelper():
         return self.__operate_on_table(func)
 
     def get_latest_batch_id(self, step_name):
-        batch_id = None #self.row_key_cache[step_name]
-
-        if not batch_id:
-            row_key = self.get_latest_step_batch(step_name)[0]
-            batch_id = self.__decode_row_key(row_key)[1]
+        row_key = self.get_latest_step_batch(step_name)[0]
+        batch_id = self.__decode_row_key(row_key)[1]
 
         return batch_id
     

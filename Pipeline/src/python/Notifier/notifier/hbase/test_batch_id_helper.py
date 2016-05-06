@@ -2,12 +2,12 @@
 import pprint
 
 from connector import Connector
-from batch_id_helper import BatchIdHelper
+from data_access_layer import DataAccessLayer
 
 def main():
     pp = pprint.PrettyPrinter(indent=2, width=1)
 
-    helper = BatchIdHelper(Connector('localhost'), 'contributions_pipeline')
+    helper = DataAccessLayer(Connector('localhost'), 'contributions_pipeline')
 
     current_lz_batch_id = int(helper.get_latest_batch_id('lz'))
     latest_lz_batch = helper.get_step_batch('lz', current_lz_batch_id)
