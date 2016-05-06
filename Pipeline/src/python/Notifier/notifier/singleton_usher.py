@@ -4,7 +4,7 @@
 #####
 
 import os
-import ConfigParser
+import configparser
 import subprocess
 import sys
 import getopt

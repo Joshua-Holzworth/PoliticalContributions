@@ -4,7 +4,7 @@
 #####
 
 
-import ConfigParser
+import configparser
 STATUS = 'status'
 BATCHID = 'batchid'
 
@@ -13,7 +13,7 @@ config = None
 def readConfig(configFileName):
 	global config
 	if config == None:
-		config = ConfigParser.ConfigParser()
+		config = configparser.ConfigParser()
 		config.read(configFileName)
 
 
@@ -44,5 +44,5 @@ def getBatchID(stepName):
 def incrBatchID(stepName):
 	batchid = int(config.get(stepName,BATCHID))
 	batchid = batchid + 1
-	config.set(stepName,BATCHID,batchid)
+	config.set(stepName,BATCHID,str(batchid))
 

@@ -11,7 +11,7 @@ import notifier_singleton
 
 
 def usage():
-	print 'singleton_trigger.py -c <configFileName> -s <stepName> -p <previousStep>'
+	print('singleton_trigger.py -c <configFileName> -s <stepName> -p <previousStep>')
 
 
 STATUS = 'Status'
@@ -65,8 +65,10 @@ def main():
 		notifier_singleton.runningStep(stepName)
 		notifier_singleton.writeConfig(configFileName)
 
-	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + stepName + "\", \"batchid\" : \" " + str(currentBatchID) + " \"}"
-	print jsonOutput
+	batchIDJsonBlob =  "\"batchid\" : \"" + str(currentBatchID) + "\", \"batchIDMin\" : \"" + str(currentBatchID) + "\", \"batchIDMax\" : \"" + str(currentBatchID) + "\""
+
+	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + stepName + "\", " + batchIDJsonBlob + "}"
+	print(jsonOutput)
 	return 0
 
 if __name__ == "__main__":

@@ -31,12 +31,12 @@ import src.python.conf as conf
 def runHiveFile(hiveFile, parameters):
 	rootDir =  conf.project_root_dir + '/LandingZone/src/'
 	hiveCmd = "hive -f " + rootDir + hiveFile + " "+parameters
-	print "HiveCMD: " + hiveCmd
+	print("HiveCMD: " + hiveCmd)
 	hiveProc = subprocess.Popen(hiveCmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 	#hiveProc.stderr
 	output,error = hiveProc.communicate()
 	#print str(output)
-	return str(output)
+	return str(output.decode('utf-8'))
 
 
 def usage():
