@@ -1,68 +1,56 @@
 #!/usr/bin/env python
 #####
-##	Author: Joshua Holzworth
+##    Author: Joshua Holzworth
+##            Garrett Holbrook
 #####
-
 import os
-import ConfigParser
-import subprocess
-import sys
-import getopt
+import argparse
+try:
+    from configparser import ConfigParser
+except ImportError:
+    import ConfigParser
 
-global config
+import src.python.utils as utils
+
 config = None
 
-
 NOTIFIER_CFG = 'cfgDir'
-
 NOTIFIER_RELATIVE_SCRIPT = 'Notifier/notifier/notifier.py'
 
-def loadConfig(configFileName):
-	print "Reading in config file: "+configFileName
-	global config
-	if config == None:
-		config = ConfigParser.ConfigParser()
-	config.read(configFileName)
-	
-def usage():
-	print "pipeline.py -c <ConfigFileName>"
-
-
-def createNotifiers():
-	print "Creating notifiers" 
-	for section in config.sections():
-		print section
-		if config.has_option(section,NOTIFIER_CFG):
-			notifierParams = '-n ' + section + ' -c ' + config.get(section,NOTIFIER_CFG)
-			notifierCMD = 'python ' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifierParams
-			print 'Running: ' + notifierCMD
-			subprocess.Popen(notifierCMD,shell=True)
-
 def main():
-	configFileName = None
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hc:")
-	except getopt.GetoptError:
-		usage()
-		sys.exit(0)
-	for opt, arg in opts:
-		if opt == '-h':
-			usage()
-			sys.exit(0)
-		elif opt in ("-c", "--configFileName"):
-			configFileName = arg
+    config_file_name = parse_args()
 
-	if configFileName is not None:
-		loadConfig(configFileName)
-	else:
-		usage()
-		sys.exit(0)
+    load_config(config_file_name)
 
-	createNotifiers()
+    create_notifiers()
 
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-c', '--config-file-name', required=True)
 
+    return argparser.parse_args().config_file_name
 
+def load_config(config_file_name):
+    utils.log("Reading in config file: " + config_file_name)
 
+    global config
+    if config == None:
+        config = ConfigParser.ConfigParser()
+
+    config.read(config_file_name)
+    
+def create_notifiers():
+    utils.log("Creating notifiers")
+
+    for section in config.sections():
+        utils.log('Section: ' + str(section))
+
+        if config.has_option(section, NOTIFIER_CFG):
+            notifier_params = '-n ' + section + ' -c ' + config.get(section, NOTIFIER_CFG)
+            notifier_command = './' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifier_params
+
+            print('Running: ' + notifier_command)
+            utils.run_command(notifier_command)
 
 if __name__ == "__main__":
-	exit(main())
+    exit(main())
