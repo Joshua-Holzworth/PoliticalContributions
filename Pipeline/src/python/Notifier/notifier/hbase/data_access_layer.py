@@ -54,32 +54,31 @@ class DataAccessLayer():
     def __set_step_to_stopped(self, step_name, end_message, table):
         row_key = self.__get_latest_step_row_key(step_name, table)
 
-        with self.connector as connection:
-            table = connection.table(self.table_name)
-            row = table.row(row_key)
-            status = row.get('current:status')
+        row = table.row(row_key)
+        status = row.get('current:status')
 
-            if status == 'Running' or status == 'Stopped':
-                current_attempt_num = int(row.get('current:attemptNum'))
-                update_data = {
-                    'attemptEnd:' + str(current_attempt_num) : str(end_message),
-                    'current:status' : 'Stopped'
-                }
-                table.put(row_key, update_data)
+        if status == 'Running' or status == 'Stopped':
+            current_attempt_num = int(row.get('current:attemptNum'))
+            update_data = {
+                'attemptEnd:' + str(current_attempt_num) : str(end_message),
+                'current:status' : 'Stopped'
+            }
+            table.put(row_key, update_data)
 
     def __set_step_to_running(self, step_name, start_message, table):
-            row_key = self.__get_latest_step_row_key(step_name, table)
-            row = table.row(row_key)
-            status = row.get('current:status')
+        row_key = self.__get_latest_step_row_key(step_name, table)
 
-            if status != 'Running' and status != 'Started':
-                new_attempt_num = int(row.get('current:attemptNum') or 0) + 1
-                update_data = {
-                    'attemptStart:' + str(new_attempt_num) : str(start_message),
-                    'current:status' : 'Running',
-                    'current:attemptNum': str(new_attempt_num)
-                }
-                table.put(row_key, update_data)
+        row = table.row(row_key)
+        status = row.get('current:status')
+
+        if status != 'Running' and status != 'Started':
+            new_attempt_num = int(row.get('current:attemptNum') or 0) + 1
+            update_data = {
+                'attemptStart:' + str(new_attempt_num) : str(start_message),
+                'current:status' : 'Running',
+                'current:attemptNum': str(new_attempt_num)
+            }
+            table.put(row_key, update_data)
 
     def __increment_step(self, step_name, table):
         current_row_key = self.__get_latest_step_row_key(step_name, table)
