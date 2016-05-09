@@ -1,41 +1,56 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/env python2.7
 #######
-##	Author: Joshua Holzworth
+##    Authors: Joshua Holzworth
+##             Garrett Holbrook
 #######
-
-import getopt
-import sys
-from sys import argv
 import os
+import argparse
 
+from hbase.connector import Connector
+from hbase.data_access_layer import DataAccessLayer
 
-def printHelp():
-	print('file_trigger.py -f <file>')
+schema = {
+    'current': dict(),
+    'attemptStart': dict(),
+    'attemptEnd': dict()
+}
 
 def main():
-	fileToWatch = None
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hf:")
-	except getopt.GetoptError:
-		printHelp()
-		sys.exit(2)
-	
-	for opt, arg in opts:
-		if opt == '-h':
-			printHelp()
-			sys.exit(2)
-		elif opt in ("-f", "--file"):
-			fileToWatch = arg
-	fileSet = fileToWatch is not None
-	rc = 3
-	if fileSet:
-		exists = os.path.exists(fileToWatch)
-		rc = 0 if exists else 1
+    file_path, connection_string, table = parse_args()
 
-	jsonOutput = "{\"triggered\":" + ("true" if exists else "false") + ", \"Parameter1\":\"override!\"}"
-	print(jsonOutput)
+    file_exists = os.path.exists(file_path)
+    rc = (0 if file_exists else 1)
 
-	return rc
+    if file_exists:
+        trigger(connection_string, table, file_path)
+
+    print_json_response(file_exists)
+    return rc
+
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-f', '--file', help='File to watch', required=True)
+    argparser.add_argument('-t', '--table', required=True)
+    argparser.add_argument('-c', '--hbase-connection',
+                           help='HBase connection string', required=True)
+
+    command_args = argparser.parse_args()
+
+    return command_args.file, command_args.hbase_connection, command_args.table
+
+def print_json_response(file_exists):
+    jsonOutput = ('{"triggered":' + 
+                  str(file_exists).lower() + 
+                  ', "Parameter1":"override!"}')
+    print(jsonOutput)
+
+def trigger(connection_string, table, file_path):
+    connector = Connector(connection_string)
+    dal = DataAccessLayer(connector, table)
+
+    dal.create_table_if_not_exists(schema)
+    dal.increment_step('test')
+    dal.set_step_to_running('test', 'File found at ' + file_path)
 
 if __name__ == "__main__":
-	exit(main())
+    exit(main())
