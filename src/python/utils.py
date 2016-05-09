@@ -12,14 +12,13 @@ def run_command(command):
 
 def capture_command_output(command):
     PIPE = subprocess.PIPE
-    process = subprocess.run(shlex.split(command), stdout=PIPE, stderr=PIPE)
-    stdout = process.stdout
-    stderr = process.stderr
+    process = subprocess.Popen(shlex.split(command), stdout=PIPE, stderr=PIPE)
+    stdout, stderr = tuple(process.communicate())
 
     if stdout:
-        stdout = stdout.decode('utf-8')
+        stdout = str(stdout.decode('utf-8'))
     if stderr:
-        stderr = stderr.decode('utf-8')
+        stderr = str(stderr.decode('utf-8'))
 
     return process.returncode, stdout, stderr 
 
