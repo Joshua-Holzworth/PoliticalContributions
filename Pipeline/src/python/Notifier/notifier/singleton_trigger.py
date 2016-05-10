@@ -2,74 +2,55 @@
 #####
 ##	Author: Joshua Holzworth
 #####
-
-import os
-import subprocess
-import sys
-import getopt
+import argparse
 import notifier_singleton
 
-
-def usage():
-	print('singleton_trigger.py -c <configFileName> -s <stepName> -p <previousStep>')
-
-
 STATUS = 'Status'
+
 def main():
-	prevStepName = None
-	stepName = None
-	configFileName = None
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hc:s:p:")
-	except getopt.GetoptError:
-		usage()
-		sys.exit(0)
-	for opt, arg in opts:
-		if opt == '-h':
-			usage()
-			sys.exit(0)
-		elif opt in ("-c", "--configFileName"):
-			configFileName = arg
-		elif opt in ("-s", "--stepName"):
-			stepName = arg
-		elif opt in ("-p", "--prevStepName"):
-			prevStepName = arg
+	config_file_name, step_name, prev_step_name = parse_args()
 
-	if stepName is None or configFileName is None:
-		usage()
-		sys.exit(0)
-
-	notifier_singleton.readConfig(configFileName)
-	curStatus = notifier_singleton.stepRunning(stepName)
+	notifier_singleton.read_config(config_file_name)
+	cur_status = notifier_singleton.step_running(step_name)
 
 	#Defaults to -1
-	prevBatchID = -1
+	prev_batch_id = -1
 
-	if prevStepName is not None:
-		prevStatus =  notifier_singleton.stepRunning(prevStepName)
-		prevBatchID = int(notifier_singleton.getBatchID(prevStepName))
-		if prevStatus == "Running" or prevStatus == "Stopped":
-			prevBatchID = prevBatchID - 1
+	if prev_step_name is not None:
+		prev_status =  notifier_singleton.step_running(prev_step_name)
+		prev_batch_id = int(notifier_singleton.getBatchID(prev_step_name))
+		if prev_status == "Running" or prevStatus == "Stopped":
+			prev_batch_id = prev_batch_id - 1
 
-	triggered = True if curStatus == 'Stopped' or curStatus == 'Started' else False
+	triggered = True if cur_status == 'Stopped' or cur_status == 'Started' else False
 
-	currentBatchID = int(notifier_singleton.getBatchID(stepName))
+	currentBatchID = int(notifier_singleton.getBatchID(step_name))
 
 	
-	triggered = triggered and (True if currentBatchID <= prevBatchID else False)
+	triggered = triggered and (True if currentBatchID <= prev_batch_id else False)
 	
-	if prevStatus == "Running" or prevStatus == "Stopped" and str(currentBatchID) == str(prevBatchID):
+	if prev_status == "Running" or prevStatus == "Stopped" and str(currentBatchID) == str(prev_batch_id):
 		triggered = False
 
 	if triggered:
-		notifier_singleton.runningStep(stepName)
-		notifier_singleton.writeConfig(configFileName)
+		notifier_singleton.runningStep(step_name)
+		notifier_singleton.writeConfig(config_file_name)
 
-	batchIDJsonBlob =  "\"batchid\" : \"" + str(currentBatchID) + "\", \"batchIDMin\" : \"" + str(currentBatchID) + "\", \"batchIDMax\" : \"" + str(currentBatchID) + "\""
+	batch_id_json_blob =  "\"batchid\" : \"" + str(currentBatchID) + "\", \"batchIDMin\" : \"" + str(currentBatchID) + "\", \"batchIDMax\" : \"" + str(currentBatchID) + "\""
 
-	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + stepName + "\", " + batchIDJsonBlob + "}"
+	jsonOutput = "{\"triggered\":" + ("true" if triggered else "false") + ", \"step\": \"" + step_name + "\", " + batch_id_json_blob + "}"
 	print(jsonOutput)
 	return 0
+
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-c', '--config-file-name', required=True)
+    argparser.add_argument('-s', '--step-name', required=True)
+    argparser.add_argument('-p', '--prev-step-name', required=True)
+
+    args = argparser.parse_args()
+
+    return args.config_file_name, args.step_name, args.prev_step_name
 
 if __name__ == "__main__":
 	exit(main())
