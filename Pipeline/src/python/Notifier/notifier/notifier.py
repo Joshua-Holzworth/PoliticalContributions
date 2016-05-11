@@ -16,16 +16,20 @@ except ImportError:
 import src.python.utils as utils
 
 CFG_FILE_EXTENSION = '.cfg'
+LOGGING_NAME = 'notifier.py'
 
 def main():
     parameters = None
     name, config_dir = parse_args()
 
+    global LOGGING_NAME
+    LOGGING_NAME = name + ' notifier.py'
+
     configs = utils.list_directory(config_dir, file_extension=CFG_FILE_EXTENSION)
 
     config = configparser.ConfigParser()
     for cfg in configs:
-        load_config(config, config_dir + cfg)
+        load_config(config, config_dir + '/' + cfg)
 
     parameters = generate_parameters(config)
     log_parameters(parameters)
@@ -45,23 +49,16 @@ def parse_args():
 #It should be noted this can be called multiple times and the order the function is called
 #determines if a value inside the config is overriden.
 def load_config(config, config_file_name):
-    utils.log("Reading in config file: " + config_file_name, level=utils.WARN)
+    utils.log('Reading in config file: ' + config_file_name, level=utils.INFO,
+              name=LOGGING_NAME)
     config.read(config_file_name)
     
-#Boots up a new script and starts it on another process
-#This should be called when an event is triggered
-#  scriptName - The script to be started
-#  parameters - The parameters that are going to be passed into the script that's invoked
-def startScript(scriptName, parameters):
-    subprocess.Popen(scriptName + " " + parameters)
-
-PARAMS = "Params"
+PARAMS = 'Params'
 TRIGGER_SECTION = 'TriggerEvent'
 TRIGGER_SCRIPT = 'TriggerScript'
 SCRIPT_PARAMS = 'TriggerScriptParams'
 #In long milliseconds
 TRIGGER_DELAY = 'TriggerDelay'
-
 
 EVENT_SCRIPT = 'EventScript'
 EVENT_SECTION = 'Event'
@@ -86,43 +83,47 @@ def generate_parameters(config):
             parameters[section] = str(section_dict['val'])
         elif 'script' in section_dict:
             param_script = section_dict['script']
-            param_script_params = ""
+            param_script_params = ''
 
             if 'params' in section_dict:
                 param_script_params = section_dict['params']
 
-            command = './' + script + ' ' + param_script_params
+            command = script + ' ' + param_script_params
             param_val = get_script_result(command)
             parameters[section] = str(param_val).strip()
 
     return parameters
 
 def log_parameters(param_dict):
-    utils.log('Parameters...')
+    log_message = 'Parameters:'
     for key in param_dict:
-        utils.log(str(key) + ': ' + str(param_dict[key]))
+        log_message += ' ' + str(key) + ': ' + str(param_dict[key])
+
+    utils.log(log_message, level=utils.INFO, name=LOGGING_NAME)
 
 def get_script_result(command):
-    proc = subprocess.Popen(command,shell=True,stdout=subprocess.PIPE)
-    output,error = proc.communicate()
-    return output
+    exit_code, stdout, stderr = utils.capture_command_output(command)
+    return stdout
 
 def load_parameters(parameters, json_literal):
-    utils.log("LITERAL!" + json_literal)
+    utils.log('Trigger JSON response: ' + json_literal.rstrip(), level=utils.DEBUG,
+              name=LOGGING_NAME)
     json_dict = parse_json(json_literal)
     newParams = parameters.copy()
     newParams.update(json_dict)
     return newParams
 
-paramRegx = "\$(\w+)\s*"
+paramRegx = '\$(\w+)\s*'
 def replace_var_in_params(param_dict, param_literal):
-    utils.log("Finding params inside: " + param_literal)
+    utils.log('Finding params inside: ' + param_literal, level=utils.DEBUG,
+              name=LOGGING_NAME)
     param_matches = re.findall(paramRegx, param_literal, re.M|re.I)
 
     for param_match in param_matches:
-        param_literal = re.sub("\$" + param_match, str(param_dict[param_match]), param_literal)
+        param_literal = re.sub('\$' + param_match, str(param_dict[param_match]), param_literal)
 
-    utils.log("Final param_literal : " + param_literal)
+    utils.log('Final param_literal : ' + param_literal, level=utils.INFO,
+              name=LOGGING_NAME)
 
     return param_literal
 
@@ -139,38 +140,50 @@ def replace_var_in_params(param_dict, param_literal):
 #Does not return anything just creates the trigger process and waits for this notifier to be started
 def setup_trigger(config, parameters):
     if not config.has_section(TRIGGER_SECTION):
-        utils.log('No trigger section in configs consumed. Shutting down process.')
+        utils.log('No trigger section in configs consumed. Shutting down process.',
+                  level=utils.ERROR, name=LOGGING_NAME)
     elif config.has_option(TRIGGER_SECTION, TRIGGER_SCRIPT):
         setup_script_trigger(config, parameters)
     else:
-        utils.log('FAILURE', level=utils.ERROR)
+        utils.log('FAILURE', level=utils.ERROR, name=LOGGING_NAME)
 
-def start_event_script(param_dict):
+def start_event_script(config, param_dict):
     log_parameters(param_dict)
-    eventScript = config.get(EVENT_SECTION,EVENT_SCRIPT)
-    eventParamLiteral = config.get(EVENT_SECTION,PARAMS)
-    event_params = replace_var_in_params(param_dict,eventParamLiteral)
-    eventCmd = "./" + eventScript + " "+event_params
+    event_script = config.get(EVENT_SECTION, EVENT_SCRIPT)
+    event_param_literal = config.get(EVENT_SECTION, PARAMS)
+    event_params = replace_var_in_params(param_dict,event_param_literal)
+    event_command = event_script + ' ' + event_params
 
-    rc = subprocess.call(eventCmd,shell=True,stdout=subprocess.PIPE)
-    utils.log("EVENT CMD : "+eventCmd + " rc: " +str(rc))
+    utils.log('Running event with command: ' + event_command, level=utils.INFO,
+              name=LOGGING_NAME)
+    rc = utils.run_command(event_command)
+    utils.log('Event with command: ' + event_command + ' returned code ' + 
+              str(rc), level=utils.INFO, name=LOGGING_NAME)
     return rc
 
 
-USHER_SECTION = "Usher"
-USHER_SCRIPT = "UsherScript"
-def execute_usher_script(param_dict):
+USHER_SECTION = 'Usher'
+USHER_SCRIPT = 'UsherScript'
+def execute_usher_script(config, param_dict):
     usher_script = config.get(USHER_SECTION, USHER_SCRIPT)
     usher_param_literal = config.get(USHER_SECTION, PARAMS)
     usher_params = replace_var_in_params(param_dict, usher_param_literal)
-    usher_command = "./" + usher_script + " " + usher_params
-    rc = subprocess.call(usher_command, shell=True, stdout=subprocess.PIPE)
-    utils.log("Ushering: " + usher_command)
+    usher_command = usher_script + ' ' + usher_params
+
+    utils.log('Ushering: ' + usher_command, level=utils.INFO, name=LOGGING_NAME)
+
+    exit_code, stdout, stderr = utils.capture_command_output(usher_command)
+
+    utils.log('Usher command: "' + usher_command + '" exited with code ' + 
+              str(exit_code) + ', stdout=' + stdout.rstrip() + ', stderr=' +
+              stderr.rstrip(), level=utils.INFO, name=LOGGING_NAME)
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setup_script_trigger(config, parameters):
-    utils.log('Setting up trigger based on Script!')
+    utils.log('Setting up trigger based on script!', level=utils.INFO,
+              name=LOGGING_NAME)
+
     global delay
 
     if config.has_option(TRIGGER_SECTION, PARAMS):
@@ -180,13 +193,14 @@ def setup_script_trigger(config, parameters):
         script_params_literal = config.get(TRIGGER_SECTION, PARAMS)
         script_params = replace_var_in_params(parameters, script_params_literal)
         script = config.get(TRIGGER_SECTION, TRIGGER_SCRIPT)
-        command = script + " " + script_params
+        command = script + ' ' + script_params
             
-        while True:
+#        while True:
+        if True:
             exit_code, stdout, stderr = utils.capture_command_output(command)
-            utils.log('Command: ' + command + ' exited with code ' + 
-                      str(exit_code) + '\tstdout=' + stdout + '\tstderr=' +
-                      stderr, level=utils.INFO)
+            utils.log('Trigger command: "' + command + '" exited with code ' + 
+                      str(exit_code) + ', stdout=' + stdout.rstrip() + ', stderr=' +
+                      stderr.rstrip(), level=utils.INFO, name=LOGGING_NAME)
 
             if exit_code == 0:
                 json_data = parse_json(stdout)
@@ -196,11 +210,11 @@ def setup_script_trigger(config, parameters):
                     event_params = load_parameters(parameters, stdout)
 
                     if json_data['triggered']:
-                        event_rc = start_event_script(event_params)
+                        event_rc = start_event_script(config, event_params)
                         event_params.update({'EventRC':event_rc})
 
                         if event_rc == 0:
-                            execute_usher_script(event_params)
+                            execute_usher_script(config, event_params)
                         
             time.sleep(delay)
 
@@ -208,5 +222,5 @@ def setup_script_trigger(config, parameters):
 #This will encapsolate the fact that it's a process
 #It'll need a directory and a file or files it's looking for before it's starts it's script
 #It can even take a script or function that must return a boolean for the script to be booted up
-if __name__ == "__main__":
+if __name__ == '__main__':
     exit(main())

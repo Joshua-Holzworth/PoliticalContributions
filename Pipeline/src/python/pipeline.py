@@ -16,6 +16,7 @@ config = None
 
 NOTIFIER_CFG = 'cfgDir'
 NOTIFIER_RELATIVE_SCRIPT = 'Notifier/notifier/notifier.py'
+LOGGING_NAME = 'pipeline.py'
 
 def main():
     config_file_name = parse_args()
@@ -31,7 +32,8 @@ def parse_args():
     return argparser.parse_args().config_file_name
 
 def load_config(config_file_name):
-    utils.log("Reading in config file: " + config_file_name)
+    utils.log('Reading in config file: ' + config_file_name, level=utils.INFO,
+              name=LOGGING_NAME)
 
     global config
     if config == None:
@@ -40,17 +42,19 @@ def load_config(config_file_name):
     config.read(config_file_name)
     
 def create_notifiers():
-    utils.log("Creating notifiers")
+    utils.log('Creating notifiers', level=utils.INFO, name=LOGGING_NAME)
 
     for section in config.sections():
-        utils.log('Section: ' + str(section))
+        utils.log('Section: ' + str(section), level=utils.DEBUG,
+                  name=LOGGING_NAME)
 
         if config.has_option(section, NOTIFIER_CFG):
             notifier_params = '-n ' + section + ' -c ' + config.get(section, NOTIFIER_CFG)
-            notifier_command = './' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifier_params
+            notifier_command = NOTIFIER_RELATIVE_SCRIPT + ' ' + notifier_params
 
-            print('Running: ' + notifier_command)
+            utils.log('Running notifier with command: ' + notifier_command,
+                      level=utils.INFO, name=LOGGING_NAME)
             utils.run_command(notifier_command)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     exit(main())

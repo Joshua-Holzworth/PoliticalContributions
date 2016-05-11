@@ -15,9 +15,13 @@ PIPE = subprocess.PIPE
 def log(message, **kwargs):
     log_message = ''
     level = kwargs.get('level')
+    name = kwargs.get('name')
 
     if level:
         log_message += '[' + level + '] '
+    if name:
+        log_message += '[' + name + '] '
+
     log_message += message
 
     print(log_message)
@@ -53,10 +57,8 @@ def capture_command_output(command):
         stderr = e.output
         return_code = e.return_code
 
-    if stdout:
-        stdout = str(stdout.decode('utf-8'))
-    if stderr:
-        stderr = str(stderr.decode('utf-8'))
+    stdout = str(stdout.decode('utf-8'))
+    stderr = str(stderr.decode('utf-8'))
 
     return return_code, stdout, stderr 
 

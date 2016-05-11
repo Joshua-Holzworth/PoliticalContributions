@@ -19,32 +19,32 @@ def read_config(config_file_name):
         config = configparser.ConfigParser()
         config.read(config_file_name)
 
-def running_step(stepName):
-    if step_running(stepName) is not 'Running':
-        config.set(stepName,STATUS,'Running')
+def running_step(step_name):
+    if step_running(step_name) is not 'Running':
+        config.set(step_name,STATUS,'Running')
 
-def start_step(stepName):
-    if step_running(stepName) is not 'Running':
-        config.set(stepName,STATUS,'Started')
+def start_step(step_name):
+    if step_running(step_name) is not 'Running':
+        config.set(step_name,STATUS,'Started')
 
-def stop_event(stepName):
-    config.set(stepName,STATUS,'Stopped')
+def stop_event(step_name):
+    config.set(step_name,STATUS,'Stopped')
 
-def finish_event(stepName):
-    config.set(stepName,STATUS,'Finished')
+def finish_event(step_name):
+    config.set(step_name,STATUS,'Finished')
 
 def write_config(config_file_name):
     with open(config_file_name,'w') as configfile:
         config.write(configfile)
 
-def step_running(stepName):
-    return config.get(stepName,STATUS)
+def step_running(step_name):
+    return config.get(step_name,STATUS)
 
-def get_batch_id(stepName):
-    return config.get(stepName,BATCHID)
+def get_batch_id(step_name):
+    return config.get(step_name,BATCHID)
 
-def incr_batch_id(stepName):
-    batchid = int(config.get(stepName,BATCHID))
-    batchid = batchid + 1
-    config.set(stepName,BATCHID,str(batchid))
+def increment_batch_id(step_name):
+    batch_id = int(config.get(step_name, BATCHID))
+    batch_id = batch_id + 1
+    config.set(step_name, BATCHID, str(batch_id))
 

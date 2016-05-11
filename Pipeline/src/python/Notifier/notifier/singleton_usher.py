@@ -1,69 +1,50 @@
 #!/usr/bin/env python
 #####
-##	Author: Joshua Holzworth
+##    Author: Joshua Holzworth
 #####
-
-import os
-import configparser
-import subprocess
-import sys
-import getopt
+import argparse
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
 
 import notifier_singleton
-	
-def usage():
-	print("singleton_usher.py -c <ConfigFileName> -s <CurrentStep> -n <NextStep> -r <CurrentStepReturnCode>")
-
-
+    
 def main():
-	configFileName = None
-	currentStep = None
-	returnCode = None
-	nextStep = None
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hc:s:r:n:")
-	except getopt.GetoptError:
-		usage()
-		sys.exit(0)
-	for opt, arg in opts:
-		if opt == '-h':
-			usage()
-			sys.exit(0)
-		elif opt in ("-c", "--configFileName"):
-			configFileName = arg
-		elif opt in ("-s", "--currentStep"):
-			currentStep = arg
-		elif opt in ("-r", "--returnCode"):
-			returnCode = arg
-		elif opt in ("-n", "--nextStep"):
-			nextStep = arg
+    config_file_name, current_step, return_code, next_step = parse_args()
 
-	if configFileName == None or currentStep == None or returnCode == None:
-		usage()
-		exit(134)
+    notifier_singleton.read_config(config_file_name)
 
-	notifier_singleton.readConfig(configFileName)
-	if notifier_singleton.stepRunning(currentStep) == "Running":
-		if returnCode == "1":
-			notifier_singleton.stopEvent(currentStep)
-		elif returnCode == "0":
-			#If this is a success
-			#Then we are going to increment the currensteps batchid (Only if previous step's id is less)
-			#Actually we are going to make that check in the trigger
-			#We are just going to increment
-			#notifier_singleton.incrBatchID(currentStep)
-			curBatchID = notifier_singleton.getBatchID(currentStep)
-			if nextStep != None:
-				nextStepStatus = notifier_singleton.stepRunning(nextStep)
-				if nextStepStatus == 'Finished':
-					nextStepBatchID = notifier_singleton.getBatchID(nextStep)
-					if nextStepBatchID < curBatchID:
-						notifier_singleton.incrBatchID(nextStep)
-						notifier_singleton.startStep(nextStep)
-			notifier_singleton.finishEvent(currentStep)
-		notifier_singleton.writeConfig(configFileName)
-	else:
-		print('Nothing to usher')
+    if notifier_singleton.step_running(current_step) == "Running":
+        if return_code == "1":
+            notifier_singleton.stop_event(current_step)
+        elif return_code == "0":
+            current_batch_id = notifier_singleton.get_batch_id(current_step)
+
+            if next_step != None:
+                next_step_status = notifier_singleton.step_running(next_step)
+                if next_step_status == 'Finished':
+                    next_step_batch_id = notifier_singleton.get_batch_id(next_step)
+                    if next_step_batch_id < current_batch_id:
+                        notifier_singleton.increment_batch_id(next_step)
+                        notifier_singleton.start_step(next_step)
+
+            notifier_singleton.finish_event(current_step)
+
+        notifier_singleton.write_config(config_file_name)
+    else:
+        print('Nothing to usher')
+
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-c', '--config-file-name', required=True)
+    argparser.add_argument('-s', '--current-step', required=True)
+    argparser.add_argument('-r', '--return-code', required=True)
+    argparser.add_argument('-n', '--next-step', required=True)
+
+    args = argparser.parse_args()
+
+    return args.config_file_name, args.current_step, args.return_code, args.next_step
 
 if __name__ == "__main__":
-	exit(main())
+    exit(main())
