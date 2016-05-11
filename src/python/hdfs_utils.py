@@ -3,7 +3,7 @@
 ########
 import os
 
-import src.python.utils as utils
+import utils
 
 HDFS_CMD = 'hdfs dfs'
 LOGGING_NAME = 'hdfs_utils.py'
@@ -34,3 +34,17 @@ def put_files(local_dir, hdfs_dir):
     else:
         utils.log(local_dir + ' does not exists',
                   level=utils.ERROR, name=LOGGING_NAME)
+
+def dir_exists(hdfs_dir):
+    check_command = HDFS_CMD + ' -test -d ' + hdfs_dir
+
+    exit_code = utils.run_command(check_command)
+
+    return True is exit_code == 0 else False
+
+def file_exists(hdfs_file_path):
+    check_command = HDFS_CMD + ' -test -f ' + hdfs_file_path
+
+    exit_code = utils.run_command(check_command)
+
+    return True is exit_code == 0 else False

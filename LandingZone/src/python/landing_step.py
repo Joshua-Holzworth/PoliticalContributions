@@ -15,7 +15,7 @@
 import argparse
 
 from parsing import parser
-import hdfs_utils
+import src.python.hdfs_utils as hdfs_utils
 import shutil
 
 def main():

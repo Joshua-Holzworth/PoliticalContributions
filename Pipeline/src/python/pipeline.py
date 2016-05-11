@@ -5,23 +5,21 @@
 #####
 import os
 import argparse
-try:
-    from configparser import ConfigParser
-except ImportError:
-    import ConfigParser
 
 import src.python.utils as utils
 
 config = None
 
 NOTIFIER_CFG = 'cfgDir'
-NOTIFIER_RELATIVE_SCRIPT = 'Notifier/notifier/notifier.py'
+NOTIFIER_RELATIVE_SCRIPT = 'notifier/notifier.py'
 LOGGING_NAME = 'pipeline.py'
 
 def main():
     config_file_name = parse_args()
 
-    load_config(config_file_name)
+    utils.log('Reading in config file: ' + config_file_name, level=utils.INFO,
+              name=LOGGING_NAME)
+    config = utils.load_config(config_file_name)
 
     create_notifiers()
 
@@ -31,16 +29,6 @@ def parse_args():
 
     return argparser.parse_args().config_file_name
 
-def load_config(config_file_name):
-    utils.log('Reading in config file: ' + config_file_name, level=utils.INFO,
-              name=LOGGING_NAME)
-
-    global config
-    if config == None:
-        config = ConfigParser.ConfigParser()
-
-    config.read(config_file_name)
-    
 def create_notifiers():
     utils.log('Creating notifiers', level=utils.INFO, name=LOGGING_NAME)
 

@@ -8,10 +8,6 @@ import argparse
 import time
 import json
 import re
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
 
 import src.python.utils as utils
 
@@ -27,9 +23,9 @@ def main():
 
     configs = utils.list_directory(config_dir, file_extension=CFG_FILE_EXTENSION)
 
-    config = configparser.ConfigParser()
+    config = None
     for cfg in configs:
-        load_config(config, config_dir + '/' + cfg)
+        config = utils.load_config(config=config, config_dir + '/' + cfg)
 
     parameters = generate_parameters(config)
     log_parameters(parameters)

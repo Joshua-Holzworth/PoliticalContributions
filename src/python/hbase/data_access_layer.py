@@ -30,6 +30,19 @@ class DataAccessLayer():
         batch_id = self.__decode_row_key(row_key)[1]
 
         return batch_id
+
+    def get_latest_batch_id_with_condition(self, step_name, column, value):
+        row = self.get_latest_step_batch_with_condition(step_name, 
+                                                            column, value)
+        row_key = row[0] if row else None
+        batch_id = self.__decode_row_key(row_key)[1] if row_key else None
+
+        return batch_id
+
+    def get_latest_step_batch_with_condition(self, step_name, column, value):
+        func = bind(self.__get_latest_step_batch_with_condition, step_name,
+                                                                column, value)
+        return self.__operate_on_table(func)
     
     def set_step_to_running(self, step_name, start_message):
         func = bind(self.__set_step_to_running, step_name, start_message)
@@ -64,6 +77,17 @@ class DataAccessLayer():
     def __get_latest_step_batch_id(self, step_name, table):
         row_key = self.__get_latest_step_row_key(step_name, table)
         return self.__decode_row_key(row_key)[1]
+
+    def __get_latest_step_batch_with_condition(self, step_name, column, value,
+                                               table):
+        latest_row = None
+
+        for row in table.scan(row_prefix=step_name):
+            if row.get(column) == value:
+                latest_row = row
+                break;
+
+        return latest_row
 
     def __set_step_to_running(self, step_name, start_message, table):
         row_key = self.__get_latest_step_row_key(step_name, table)
