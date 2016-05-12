@@ -8,8 +8,6 @@ import argparse
 
 import src.python.utils as utils
 
-config = None
-
 NOTIFIER_CFG = 'cfgDir'
 NOTIFIER_RELATIVE_SCRIPT = 'notifier/notifier.py'
 LOGGING_NAME = 'pipeline.py'
@@ -21,7 +19,7 @@ def main():
               name=LOGGING_NAME)
     config = utils.load_config(config_file_name)
 
-    create_notifiers()
+    create_notifiers(config)
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -29,7 +27,7 @@ def parse_args():
 
     return argparser.parse_args().config_file_name
 
-def create_notifiers():
+def create_notifiers(config):
     utils.log('Creating notifiers', level=utils.INFO, name=LOGGING_NAME)
 
     for section in config.sections():

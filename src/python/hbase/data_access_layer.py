@@ -15,6 +15,14 @@ class DataAccessLayer():
             if self.table_name not in connection.tables():
                 connection.create_table(self.table_name, table_schema)
 
+    def get_batch_id_from_row_key(self, row_key):
+        return self.__decode_row_key(row_key)[1]
+
+    def get_next_batch_id(self, batch_id):
+        batch_id_int = int(batch_id)
+        new_batch_id_int = batch_id_int - 1
+        return str(new_batch_id_int).zfill(NUM_OF_BATCH_ID_DIGITS)
+
     def get_step_batch(self, step_name, batch_id):
         row_key = self.__build_row_key(step_name, batch_id)
 
@@ -83,7 +91,7 @@ class DataAccessLayer():
         latest_row = None
 
         for row in table.scan(row_prefix=step_name):
-            if row.get(column) == value:
+            if row[1].get(column) == value:
                 latest_row = row
                 break;
 
@@ -139,7 +147,7 @@ class DataAccessLayer():
     def __increment_step(self, step_name, table):
         current_row_key = self.__get_latest_step_row_key(step_name, table)
         current_step_batch_id = self.__decode_row_key(current_row_key)[1]
-        next_batch_id = self.__get_next_batch_id(current_step_batch_id)
+        next_batch_id = self.get_next_batch_id(current_step_batch_id)
         next_row_key = self.__build_row_key(step_name, next_batch_id)
 
         table.put(next_row_key, {
@@ -152,8 +160,3 @@ class DataAccessLayer():
 
     def __decode_row_key(self, row_key):
         return tuple(row_key.split('.'))
-
-    def __get_next_batch_id(self, batch_id):
-        batch_id_int = int(batch_id)
-        new_batch_id_int = batch_id_int - 1
-        return str(new_batch_id_int).zfill(NUM_OF_BATCH_ID_DIGITS)

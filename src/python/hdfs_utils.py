@@ -3,7 +3,7 @@
 ########
 import os
 
-import utils
+import src.python.utils as utils
 
 HDFS_CMD = 'hdfs dfs'
 LOGGING_NAME = 'hdfs_utils.py'
@@ -26,6 +26,7 @@ def get_files(hdfs_dir, local_dir):
 #Pushes all files locate din local_dir into hdfs_dir
 def put_files(local_dir, hdfs_dir):
     if os.path.exists(local_dir):
+        mkdir(hdfs_dir)
         push_command = HDFS_CMD + ' -put ' + local_dir + '/* ' + hdfs_dir + '/.'
 
         utils.log('Pushing files with command ' + push_command,
@@ -35,16 +36,27 @@ def put_files(local_dir, hdfs_dir):
         utils.log(local_dir + ' does not exists',
                   level=utils.ERROR, name=LOGGING_NAME)
 
+def mkdir(hdfs_dir):
+        mkdir_command = HDFS_CMD + ' -mkdir -p ' + hdfs_dir
+        utils.run_command(mkdir_command)
+
 def dir_exists(hdfs_dir):
     check_command = HDFS_CMD + ' -test -d ' + hdfs_dir
 
     exit_code = utils.run_command(check_command)
 
-    return True is exit_code == 0 else False
+    return True if exit_code == 0 else False
 
 def file_exists(hdfs_file_path):
     check_command = HDFS_CMD + ' -test -f ' + hdfs_file_path
 
     exit_code = utils.run_command(check_command)
 
-    return True is exit_code == 0 else False
+    return True if exit_code == 0 else False
+
+def files_exists_in_dir(hdfs_dir):
+    command = HDFS_CMD + ' -ls ' + hdfs_dir
+
+    exit_code, stdout, stderr = utils.capture_command_output(command)
+
+    return True if stdout else False

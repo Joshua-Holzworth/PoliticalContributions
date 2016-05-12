@@ -5,9 +5,9 @@ from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
 def main():
-    prev_step, step, message, table, src.python.hbase_connection = parse_args()
+    prev_step, step, message, table, hbase_connection = parse_args()
 
-    dal = DataAccessLayer(Connector(src.python.hbase_connection), table)
+    dal = DataAccessLayer(Connector(hbase_connection), table)
 
     finished_prev_step_id = dal.get_latest_batch_id_with_condition(
         prev_step, 'current:status', 'Finished')
@@ -18,8 +18,9 @@ def main():
         triggered = True
         dal.increment_step(step)
         dal.set_step_to_running(step, message)
+        current_step_id = dal.get_latest_batch_id(step)
 
-    print_json_response(triggered)
+    print_json_response(triggered, current_step_id)
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -28,16 +29,17 @@ def parse_args():
     argparser.add_argument('-m', '--message',
                            help='Finished message or output', required=True)
     argparser.add_argument('-t', '--table', required=True)
-    argparser.add_argument('-c', '--src.python.hbase-connection',
+    argparser.add_argument('-c', '--hbase-connection',
                            help='HBase connection string', required=True)
     
     args = argparser.parse_args()
 
     return (args.prev_step, args.step, args.message, args.table,
-            args.src.python.hbase_connection)
+            args.hbase_connection)
 
-def print_json_response(triggered):
-    json_output = ('{"triggered": ' + str(triggered).lower() + '}') 
+def print_json_response(triggered, batch_id):
+    json_output = ('{"triggered": ' + str(triggered).lower() +
+                   ', "batchid": "' + batch_id + '"}') 
     print(json_output)
 
 if __name__ == '__main__':

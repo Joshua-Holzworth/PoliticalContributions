@@ -25,7 +25,7 @@ def main():
 
     config = None
     for cfg in configs:
-        config = utils.load_config(config=config, config_dir + '/' + cfg)
+        config = utils.load_config(config_dir + '/' + cfg, config=config)
 
     parameters = generate_parameters(config)
     log_parameters(parameters)
@@ -66,7 +66,7 @@ def obtain_queue(maxSize):
     return q
 
 def parse_json(json_literal):
-    json_dict = json.loads(json_literal)
+    json_dict = json.loads(json_literal.rstrip())
     return json_dict
 
 def generate_parameters(config):
@@ -145,18 +145,25 @@ def setup_trigger(config, parameters):
 
 def start_event_script(config, param_dict):
     log_parameters(param_dict)
-    event_script = config.get(EVENT_SECTION, EVENT_SCRIPT)
-    event_param_literal = config.get(EVENT_SECTION, PARAMS)
-    event_params = replace_var_in_params(param_dict,event_param_literal)
-    event_command = event_script + ' ' + event_params
 
-    utils.log('Running event with command: ' + event_command, level=utils.INFO,
-              name=LOGGING_NAME)
-    rc = utils.run_command(event_command)
-    utils.log('Event with command: ' + event_command + ' returned code ' + 
+    rc = 0
+
+    if config.has_section(EVENT_SECTION):
+        event_script = config.get(EVENT_SECTION, EVENT_SCRIPT)
+        event_param_literal = config.get(EVENT_SECTION, PARAMS)
+        event_params = replace_var_in_params(param_dict,event_param_literal)
+        event_command = event_script + ' ' + event_params
+        utils.log('Running event with command: ' + event_command, level=utils.INFO,
+                  name=LOGGING_NAME)
+
+        rc = utils.run_command(event_command)
+        utils.log('Event with command: ' + event_command + ' returned code ' + 
               str(rc), level=utils.INFO, name=LOGGING_NAME)
-    return rc
+    else:
+        utils.log('No event section found in config, skipping to usher',
+                  level=utils.WARN, name=LOGGING_NAME)
 
+    return rc
 
 USHER_SECTION = 'Usher'
 USHER_SCRIPT = 'UsherScript'
@@ -193,6 +200,8 @@ def setup_script_trigger(config, parameters):
             
 #        while True:
         if True:
+            utils.log('Running trigger with command: "' + command + '" ', 
+                      level=utils.INFO, name=LOGGING_NAME)
             exit_code, stdout, stderr = utils.capture_command_output(command)
             utils.log('Trigger command: "' + command + '" exited with code ' + 
                       str(exit_code) + ', stdout=' + stdout.rstrip() + ', stderr=' +
