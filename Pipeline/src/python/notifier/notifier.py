@@ -13,13 +13,19 @@ import src.python.utils as utils
 
 CFG_FILE_EXTENSION = '.cfg'
 LOGGING_NAME = 'notifier.py'
+LOG_LOCATION = None
+NOTIFIER_NAME = None
 
 def main():
     parameters = None
-    name, config_dir = parse_args()
+    name, parent_name, log_location, config_dir = parse_args()
 
     global LOGGING_NAME
-    LOGGING_NAME = name + ' notifier.py'
+    global LOG_LOCATION
+    global NOTIFIER_NAME
+    LOGGING_NAME = parent_name + ' ' + name + ' ' + LOGGING_NAME
+    LOG_LOCATION = log_location
+    NOTIFIER_NAME = parent_name + ' ' + name
 
     configs = utils.list_directory(config_dir, file_extension=CFG_FILE_EXTENSION)
 
@@ -35,18 +41,20 @@ def main():
 def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-n', '--name', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
     argparser.add_argument('-c', '--config-dir', required=True)
 
     command_args = argparser.parse_args()
-    return command_args.name, command_args.config_dir
+    return command_args.name, command_args.parent_name, command_args.log_location, command_args.config_dir
 
 #Reads in valus into the config
 #  config_file_name - The file name where configs that want to be loaded are held
 #It should be noted this can be called multiple times and the order the function is called
 #determines if a value inside the config is overriden.
 def load_config(config, config_file_name):
-    utils.log('Reading in config file: ' + config_file_name, level=utils.INFO,
-              name=LOGGING_NAME)
+    utils.log('Reading in config file: ' + config_file_name, LOGGING_NAME,
+              utils.INFO, LOG_LOCATION)
     config.read(config_file_name)
     
 PARAMS = 'Params'
@@ -95,15 +103,15 @@ def log_parameters(param_dict):
     for key in param_dict:
         log_message += ' ' + str(key) + ': ' + str(param_dict[key])
 
-    utils.log(log_message, level=utils.INFO, name=LOGGING_NAME)
+    utils.log(log_message, LOGGING_NAME, utils.INFO, LOG_LOCATION)
 
 def get_script_result(command):
     exit_code, stdout, stderr = utils.capture_command_output(command)
     return stdout
 
 def load_parameters(parameters, json_literal):
-    utils.log('Trigger JSON response: ' + json_literal.rstrip(), level=utils.DEBUG,
-              name=LOGGING_NAME)
+    utils.log('Trigger JSON response: ' + json_literal.rstrip(), LOGGING_NAME,
+              utils.DEBUG, LOG_LOCATION)
     json_dict = parse_json(json_literal)
     newParams = parameters.copy()
     newParams.update(json_dict)
@@ -111,17 +119,20 @@ def load_parameters(parameters, json_literal):
 
 paramRegx = '\$(\w+)\s*'
 def replace_var_in_params(param_dict, param_literal):
-    utils.log('Finding params inside: ' + param_literal, level=utils.DEBUG,
-              name=LOGGING_NAME)
+    utils.log('Finding params inside: ' + param_literal, LOGGING_NAME,
+              utils.DEBUG, LOG_LOCATION)
     param_matches = re.findall(paramRegx, param_literal, re.M|re.I)
 
     for param_match in param_matches:
         param_literal = re.sub('\$' + param_match, str(param_dict[param_match]), param_literal)
 
-    utils.log('Final param_literal : ' + param_literal, level=utils.INFO,
-              name=LOGGING_NAME)
+    utils.log('Final param_literal : ' + param_literal, LOGGING_NAME,
+              utils.INFO, LOG_LOCATION)
 
     return param_literal
+
+def logging_params():
+    return ' -pn "' + NOTIFIER_NAME + '" -log ' + LOG_LOCATION
 
 #References the configuration files pulled in. 
 #If the TRIGGER_SECTION described above does not exist then 
@@ -137,11 +148,11 @@ def replace_var_in_params(param_dict, param_literal):
 def setup_trigger(config, parameters):
     if not config.has_section(TRIGGER_SECTION):
         utils.log('No trigger section in configs consumed. Shutting down process.',
-                  level=utils.ERROR, name=LOGGING_NAME)
+                  LOGGING_NAME, utils.ERROR, LOG_LOCATION)
     elif config.has_option(TRIGGER_SECTION, TRIGGER_SCRIPT):
         setup_script_trigger(config, parameters)
     else:
-        utils.log('FAILURE', level=utils.ERROR, name=LOGGING_NAME)
+        utils.log('FAILURE', LOGGING_NAME, utils.ERROR, LOG_LOCATION)
 
 def start_event_script(config, param_dict):
     log_parameters(param_dict)
@@ -152,16 +163,18 @@ def start_event_script(config, param_dict):
         event_script = config.get(EVENT_SECTION, EVENT_SCRIPT)
         event_param_literal = config.get(EVENT_SECTION, PARAMS)
         event_params = replace_var_in_params(param_dict,event_param_literal)
+        event_params += logging_params()
         event_command = event_script + ' ' + event_params
-        utils.log('Running event with command: ' + event_command, level=utils.INFO,
-                  name=LOGGING_NAME)
+        utils.log('Running event with command: ' + event_command, LOGGING_NAME,
+                  utils.INFO, LOG_LOCATION)
 
         rc = utils.run_command(event_command)
         utils.log('Event with command: ' + event_command + ' returned code ' + 
-              str(rc), level=utils.INFO, name=LOGGING_NAME)
+                  str(rc),
+                  LOGGING_NAME, utils.INFO, LOG_LOCATION)
     else:
         utils.log('No event section found in config, skipping to usher',
-                  level=utils.WARN, name=LOGGING_NAME)
+                  LOGGING_NAME, utils.WARN, LOG_LOCATION)
 
     return rc
 
@@ -171,21 +184,23 @@ def execute_usher_script(config, param_dict):
     usher_script = config.get(USHER_SECTION, USHER_SCRIPT)
     usher_param_literal = config.get(USHER_SECTION, PARAMS)
     usher_params = replace_var_in_params(param_dict, usher_param_literal)
+    usher_params += logging_params()
     usher_command = usher_script + ' ' + usher_params
 
-    utils.log('Ushering: ' + usher_command, level=utils.INFO, name=LOGGING_NAME)
+    utils.log('Ushering: ' + usher_command, LOGGING_NAME, utils.INFO, LOG_LOCATION)
 
     exit_code, stdout, stderr = utils.capture_command_output(usher_command)
 
     utils.log('Usher command: "' + usher_command + '" exited with code ' + 
               str(exit_code) + ', stdout=' + stdout.rstrip() + ', stderr=' +
-              stderr.rstrip(), level=utils.INFO, name=LOGGING_NAME)
+              stderr.rstrip(), 
+              LOGGING_NAME, utils.INFO, LOG_LOCATION)
 
 #Sets up the trigger expecting a return code of 0 from the script found in the config file
 #Also sends in the config script parameters
 def setup_script_trigger(config, parameters):
-    utils.log('Setting up trigger based on script!', level=utils.INFO,
-              name=LOGGING_NAME)
+    utils.log('Setting up trigger based on script!', LOGGING_NAME,
+              utils.INFO, LOG_LOCATION)
 
     global delay
 
@@ -195,17 +210,18 @@ def setup_script_trigger(config, parameters):
 
         script_params_literal = config.get(TRIGGER_SECTION, PARAMS)
         script_params = replace_var_in_params(parameters, script_params_literal)
+        script_params += logging_params()
         script = config.get(TRIGGER_SECTION, TRIGGER_SCRIPT)
         command = script + ' ' + script_params
             
-#        while True:
-        if True:
+        while True:
             utils.log('Running trigger with command: "' + command + '" ', 
-                      level=utils.INFO, name=LOGGING_NAME)
+                      LOGGING_NAME, utils.INFO, LOG_LOCATION)
             exit_code, stdout, stderr = utils.capture_command_output(command)
             utils.log('Trigger command: "' + command + '" exited with code ' + 
                       str(exit_code) + ', stdout=' + stdout.rstrip() + ', stderr=' +
-                      stderr.rstrip(), level=utils.INFO, name=LOGGING_NAME)
+                      stderr.rstrip(), 
+                      LOGGING_NAME, utils.INFO, LOG_LOCATION)
 
             if exit_code == 0:
                 json_data = parse_json(stdout)

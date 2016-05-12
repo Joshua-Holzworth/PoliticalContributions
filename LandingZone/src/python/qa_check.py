@@ -25,12 +25,20 @@ import argparse
 import src.python.utils as utils
 
 LOGGING_NAME = 'LandingZone/qa_check.py'
+LOG_LOCATION = None
 
 batch_id = None
 
 def main():
+    args = parse_args()
+
+    global LOGGING_NAME
+    global LOG_LOCATION
     global batch_id
-    batch_id, base_hdfs_location = parse_args()
+    LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
+    LOG_LOCATION = args.log_location
+    batch_id = args.batch_id
+    base_hdfs_location = args.base_hdfs_location
 
     hive_dir = "hive/"
     pz_hql = hive_dir + "partition_zone_ddl.hql"
@@ -62,16 +70,17 @@ def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-b', '--batch-id', required=True)
     argparser.add_argument('-l', '--hdfs-location', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
-    command_args = argparser.parse_args()
-
-    return command_args.batch_id, command_args.hdfs_location
+    return argparser.parse_args()
 
 def run_hive_file(hiveFile, parameters):
     root_dir = utils.get_project_root_dir() + '/LandingZone/src/'
     hive_command = "hive -f " + root_dir + hiveFile + " " + parameters
 
-    utils.log("HiveCMD: " + hive_command, level=utils.INFO, name=LOGGING_NAME)
+    utils.log("HiveCMD: " + hive_command, LOGGING_NAME, utils.INFO,
+              LOG_LOCATION)
 
     exit_code, stdout, stderr = utils.capture_command_output(hive_command)
     return stdout, stderr
@@ -80,9 +89,11 @@ def parse_hive_output(stdout, stderr):
     stdout = stdout.replace('\r', '')
 
     if stdout == '' and stderr == '':
-        utils.log("Success QA Check passes", level=utils.INFO, name=LOGGING_NAME)
+        utils.log("Success QA Check passes", LOGGING_NAME, utils.INFO,
+                  LOG_LOCATION)
     else:
-        utils.log("Failure QA CHECK FAILS!", level=utils.ERROR, name=LOGGING_NAME)
+        utils.log("Failure QA CHECK FAILS!", LOGGING_NAME, utils.ERROR,
+                  LOG_LOCATION)
         #Should examine what sections fail and print those out
         exit(414)
 

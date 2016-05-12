@@ -19,16 +19,17 @@ import src.python.hdfs_utils as hdfs_utils
 import shutil
 
 def main():
-    batch_id, landing_zone, transition_zone, partition_zone, partition_cols = parse_args()
+    args = parse_args()
+
     #Need to make sure this exists and create it if it doesn't
     local_landing_zone = 'LLZ'
 
-    setup_llz(landing_zone + '/batch_id=' + batch_id, local_landing_zone)
-    parse_llz(batch_id, transition_zone, local_landing_zone, partition_cols)
-    write_metadata(transition_zone, batch_id)
-    push_to_pz(transition_zone, partition_zone)
+    setup_llz(args.landing_zone + '/args.batch_id=' + args.batch_id, local_landing_zone)
+    parse_llz(args.batch_id, args.transition_zone, local_landing_zone, args.partition_cols)
+    write_metadata(args.transition_zone, args.batch_id)
+    push_to_pz(args.transition_zone, args.partition_zone)
     cleanup(local_landing_zone)
-    cleanup(transition_zone)
+    cleanup(args.transition_zone)
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -37,11 +38,12 @@ def parse_args():
     argparser.add_argument('-t', '--transition-zone', required=True)
     argparser.add_argument('-p', '--partition-zone', required=True)
     argparser.add_argument('-c', '--partition-cols', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
     args = argparser.parse_args()
 
-    return (args.batch_id, args.landing_zone, args.transition_zone,
-            args.partition_zone, args.partition_cols)
+    return args
 
 #Pulls hdfs landing_zone files onto the local file directory
 def setup_llz(landing_zone, local_landing_zone):

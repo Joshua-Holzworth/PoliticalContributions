@@ -4,29 +4,36 @@ import argparse
 import src.python.utils as utils
 import conf as dz_conf
 
+LOGGING_NAME = 'DedupZone/qa_check.py'
+
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-pz', '--pz-table-name', required=True)
     argparser.add_argument('-dz', '--dz-table-name', required=True)
     argparser.add_argument('--pz-batch-min', required=True)
     argparser.add_argument('--pz-batch-max', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
-    command_args = argparser.parse_args()
+    args = argparser.parse_args()
 
-    qa_check_command = get_qa_check_command(command_args)
+    global LOGGING_NAME
+    LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
 
-    utils.log('QA check PZ -> DZ')
-    utils.log(qa_check_command)
+    qa_check_command = get_qa_check_command(args)
+
+    utils.log('QA check PZ -> DZ w/ command: ' + command, LOGGING_NAME,
+              utils.INFO, args.log_location)
     exit_code, stdout, stderr = utils.capture_command_output(qa_check_command)
 
     # stdout prints the result of the query, in this case it is the count
     if stdout.strip() == '0':
-        utils.log('QA check passed')
+        utils.log('QA check passed', LOGGING_NAME,
+              utils.INFO, args.log_location)
     else:
-        utils.log('QA check failed!')
-        utils.log('EXIT CODE: ' + str(exit_code))
-        utils.log('STDOUT: ' + stdout)
-        utils.log('STDERR: ' + stderr)
+        utils.log('QA check failed! exit_code=' + str(exit_code) + 
+                  ' stdout=' + stdout + ' stderr=' + stderr, 
+                  LOGGING_NAME, utils.ERROR, args.log_location)
 
 def get_qa_check_command(command_args):
     command = 'hive --hiveconf pz_table=' + command_args.pz_table_name

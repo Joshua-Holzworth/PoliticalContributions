@@ -32,7 +32,6 @@ metadata_count[TOTAL_STR] = BASE_COUNT
 def parse_csv(batch_id, output_dir, root_dir, partition_cols):
     validate_output(output_dir)
     to_parse_file_names = utils.list_directory(root_dir)
-    utils.log(str(to_parse_file_names), level=utils.DEBUG, name=LOGGING_NAME)
 
     for file_name in to_parse_file_names:
         with open (root_dir + '/' + file_name) as file_conts:
@@ -112,5 +111,4 @@ def write_metadata(output_dir, batch_id):
     with open(output_file , 'a') as metadata_file:
         for key in metadata_count:
             next_line = key + ',' + str(metadata_count[key]) + '\n'
-            utils.log('Counts: ' + next_line.strip(), level=utils.DEBUG, name=LOGGING_NAME)
             metadata_file.write(next_line)

@@ -5,6 +5,8 @@ import src.python.utils as utils
 import src.python.ddl as ddl
 import conf as pz_conf
 
+LOGGING_NAME = 'expenditures_dedup.py'
+
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-o', '--output-table', required=True)
@@ -14,17 +16,25 @@ def main():
     argparser.add_argument('-fzf', '--fz-table-data-directory', required=True)
     argparser.add_argument('--pz-batch-min', required=True)
     argparser.add_argument('--pz-batch-max', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
     args = argparser.parse_args()
 
+    global LOGGING_NAME
+    LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
+
     create_tables(args)
 
-    dedup_command = get_contributions_dedup_command(args)
+    dedup_command = get_expenditures_dedup_command(args)
+    utils.log('Running expenditures dedup with command: ' + dedup_command,
+              LOGGING_NAME, utils.INFO, args.log_location)
 
-    utils.log("Expenditures dedup run")
-    utils.log(dedup_command)
     exit_code, stdout, stderr = (utils.capture_command_output(dedup_command))
-    utils.log(stderr)
+    
+    print(stdout)
+    utils.print_stderr(stderr)
+    return exit_code
 
 def create_tables(command_args):
     ddl.create_expenditures_table(command_args.output_table,

@@ -4,21 +4,26 @@ import argparse
 from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
-def main():
-    prev_step, step, message, table, hbase_connection = parse_args()
+LOGGING_NAME = 'hbase_trigger.py'
 
-    dal = DataAccessLayer(Connector(hbase_connection), table)
+def main():
+    args = parse_args()
+
+    global LOGGING_NAME
+    LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
+
+    dal = DataAccessLayer(Connector(args.hbase_connection), args.table)
 
     finished_prev_step_id = dal.get_latest_batch_id_with_condition(
-        prev_step, 'current:status', 'Finished')
-    current_step_id = dal.get_latest_batch_id(step)
+        args.prev_step, 'current:status', 'Finished')
+    current_step_id = dal.get_latest_batch_id(args.step)
 
     triggered = False
     if current_step_id > finished_prev_step_id:
         triggered = True
-        dal.increment_step(step)
-        dal.set_step_to_running(step, message)
-        current_step_id = dal.get_latest_batch_id(step)
+        dal.increment_step(args.step)
+        dal.set_step_to_running(args.step, args.message)
+        current_step_id = dal.get_latest_batch_id(args.step)
 
     print_json_response(triggered, current_step_id)
 
@@ -31,11 +36,10 @@ def parse_args():
     argparser.add_argument('-t', '--table', required=True)
     argparser.add_argument('-c', '--hbase-connection',
                            help='HBase connection string', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
     
-    args = argparser.parse_args()
-
-    return (args.prev_step, args.step, args.message, args.table,
-            args.hbase_connection)
+    return argparser.parse_args()
 
 def print_json_response(triggered, batch_id):
     json_output = ('{"triggered": ' + str(triggered).lower() +

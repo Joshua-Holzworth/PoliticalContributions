@@ -10,12 +10,11 @@ from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
 def main():
-    next_step, connection_string, table = parse_args()
+    args = parse_args()
 
-    connector = Connector(connection_string)
-    dal = DataAccessLayer(connector, table)
+    dal = DataAccessLayer(Connector(args.hbase_connection), args.table)
 
-    dal.increment_step(next_step)
+    dal.increment_step(args.next_step)
 
     return_code = 0
     return return_code
@@ -26,10 +25,10 @@ def parse_args():
     argparser.add_argument('-t', '--table', required=True)
     argparser.add_argument('-c', '--hbase-connection',
                            help='HBase connection string', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
-    args = argparser.parse_args()
-
-    return args.next_step, args.hbase_connection, args.table
+    return argparser.parse_args()
 
 if __name__ == "__main__":
     exit(main())

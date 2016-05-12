@@ -1,8 +1,10 @@
 import os
+import sys
 import getpass
 import subprocess
 from subprocess import CalledProcessError
 import shlex
+from datetime import datetime
 try:
     import configparser
 except ImportError:
@@ -16,19 +18,26 @@ DEBUG = 'DEBUG'
 
 PIPE = subprocess.PIPE
 
-def log(message, **kwargs):
-    log_message = ''
-    level = kwargs.get('level')
-    name = kwargs.get('name')
+def log(message, name, level, write_location):
+    # timestamp - [level] - [pipelinename notifiername script] - log message
+    log_message = (str(datetime.utcnow()) + ' - [' + level + '] - [' +
+                   name + '] - ' + message)
 
-    if level:
-        log_message += '[' + level + '] '
-    if name:
-        log_message += '[' + name + '] '
+    now = datetime.utcnow()
+    log_file = str(now.date()) + ' ' + str(now.hour) + 'h.log'
 
-    log_message += message
+    __write_to_log_file(log_message, write_location, log_file)
 
-    print(log_message)
+def __write_to_log_file(message, write_dir, log_file_name):
+    if write_dir.endswith('/'):
+        write_dir = write_dir[:-1]
+
+    log_file = open(write_dir + '/' + log_file_name, 'a+')
+    log_file.write(message + '\n')
+    log_file.close()
+
+def print_stderr(output):
+    sys.stderr.write(output + '\n')
 
 def list_directory(directory, file_extension=None):
     files = []
