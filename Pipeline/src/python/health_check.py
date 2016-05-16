@@ -12,8 +12,8 @@ import src.python.utils as utils
 import notifier.utils as notifier_utils
 
 def main():
-    args = parse_args()
-    config = utils.load_config(args.config_file_name)
+    config_file_name = parse_args()
+    config = utils.load_config(config_file_name)
 
     for section in config.sections():
         if section != 'Pipeline':

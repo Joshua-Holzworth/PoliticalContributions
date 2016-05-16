@@ -9,19 +9,25 @@ import notifier.utils as notifier_utils
 
 NOTIFIER_CFG = 'cfgDir'
 NOTIFIER_RELATIVE_SCRIPT = 'notifier/notifier.py'
+PIPELINE_SECTION = 'Pipeline'
+PIPELINE_NAME = 'Name'
+LOG_LOCATION_NAME = 'LogDir'
 
 def main():
     config_file_name, notifier_name, all_notifiers = parse_args()
 
     config = utils.load_config(config_file_name)
 
+    parent_name = config.get(PIPELINE_SECTION, PIPELINE_NAME)
+    log_location = config.get(PIPELINE_SECTION, LOG_LOCATION_NAME)
+
     if all_notifiers:
         for section in config.sections():
             if section != "Pipeline":
-                setup_notifier(section)
+                setup_notifier(config, section, parent_name, log_location)
     else:
         if config.has_section(notifier_name):
-            setup_notifier(notifier_name)
+            setup_notifier(config, notifier_name, parent_name, log_location)
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -36,16 +42,17 @@ def parse_args():
 
     return args.config_file_name, args.notifier_name, args.a
 
-def setup_notifier(notifier_name):
+def setup_notifier(config, notifier_name, parent_name, log_location):
     if not notifier_utils.obtain_notifier(notifier_name):
         notifier_params = '-n ' + notifier_name + ' -c ' + config.get(notifier_name, NOTIFIER_CFG)
+        notifier_params += ' -pn "' + parent_name + '" -log ' + log_location
         notifier_command = 'python ' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifier_params
 
         print('Running: ' + notifier_command)
 
-        utils.run_command(notifier_command)
+        utils.run_command_async(notifier_command)
     else:
-        print('Notifier is already running')
+        print('Notifier ' + notifier_name + ' is already running')
 
 if __name__ == "__main__":
     exit(main())

@@ -56,6 +56,9 @@ def run_command(command):
     # see http://stackoverflow.com/questions/6466711/what-is-the-return-value-of-os-system-in-python/35362488#35362488
     return os.system(command) >> 8
 
+def run_command_async(command):
+    process = __get_last_process_in_chain(command)
+
 def capture_command_output(command):
     return_code, stdout, stderr = 1, '', ''
 
@@ -104,6 +107,13 @@ def __get_last_process_in_chain(command_string):
                             stdin = process_list[i - 1].stdout, stderr=PIPE))
 
     return process_list[-1]
+
+def build_hive_command(hql_path, parameters):
+    param_string = ''
+    for key in parameters:
+        param_string += ' --hiveconf ' + str(key) + '=' + str(parameters[key])
+
+    return 'hive -f ' + hql_path + param_string
 
 def load_config(config_file_path, config=None):
     if not config:

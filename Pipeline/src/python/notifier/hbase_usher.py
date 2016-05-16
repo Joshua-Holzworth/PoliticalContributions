@@ -4,6 +4,8 @@ import argparse
 from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
+LOGGING_NAME = 'hbase_usher.py'
+
 def main():
     args = parse_args()
 

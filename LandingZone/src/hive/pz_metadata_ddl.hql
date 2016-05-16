@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS partition_zone;
+CREATE DATABASE IF NOT EXISTS ${hiveconf:db};
 
-USE partition_zone;
+USE ${hiveconf:db};
 
 CREATE EXTERNAL TABLE IF NOT EXISTS metadata
 (

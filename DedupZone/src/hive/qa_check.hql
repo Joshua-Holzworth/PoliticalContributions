@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS contributions;
-USE contributions;
+CREATE DATABASE IF NOT EXISTS ${hiveconf:db};
+USE ${hiveconf:db};
 
 SELECT COUNT(*) FROM ${hiveconf:pz_table} pz
 LEFT JOIN ${hiveconf:dz_table} dz

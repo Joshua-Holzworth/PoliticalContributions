@@ -39,7 +39,7 @@ def kill_notifier(notifier_name):
     if notifier_info:
         kill_command = 'kill -9 ' + notifier_info.split()[1]
 
-        print('Killing ' + notifier_name + ' with command ' + command)
+        print('Killing ' + notifier_name + ' with command ' + kill_command)
 
         utils.run_command(kill_command)
 

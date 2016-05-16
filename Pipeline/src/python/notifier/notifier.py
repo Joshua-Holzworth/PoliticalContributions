@@ -168,9 +168,9 @@ def start_event_script(config, param_dict):
         utils.log('Running event with command: ' + event_command, LOGGING_NAME,
                   utils.INFO, LOG_LOCATION)
 
-        rc = utils.run_command(event_command)
+        rc, stdout, stderr = utils.capture_command_output(event_command)
         utils.log('Event with command: ' + event_command + ' returned code ' + 
-                  str(rc),
+                  str(rc) + ' stdout=' + stdout + ' stderr=' + stderr,
                   LOGGING_NAME, utils.INFO, LOG_LOCATION)
     else:
         utils.log('No event section found in config, skipping to usher',

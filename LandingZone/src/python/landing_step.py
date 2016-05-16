@@ -24,7 +24,7 @@ def main():
     #Need to make sure this exists and create it if it doesn't
     local_landing_zone = 'LLZ'
 
-    setup_llz(args.landing_zone + '/args.batch_id=' + args.batch_id, local_landing_zone)
+    setup_llz(args.landing_zone + '/batch_id=' + args.batch_id, local_landing_zone)
     parse_llz(args.batch_id, args.transition_zone, local_landing_zone, args.partition_cols)
     write_metadata(args.transition_zone, args.batch_id)
     push_to_pz(args.transition_zone, args.partition_zone)

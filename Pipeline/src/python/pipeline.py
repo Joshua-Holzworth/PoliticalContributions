@@ -44,7 +44,7 @@ def create_notifiers(config):
 
             utils.log('Running notifier with command: ' + notifier_command,
                       pipeline_name, utils.INFO, log_location)
-            utils.run_command(notifier_command)
+            utils.run_command_async(notifier_command)
 
 if __name__ == '__main__':
     exit(main())

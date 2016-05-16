@@ -27,11 +27,11 @@ class DataAccessLayer():
         row_key = self.__build_row_key(step_name, batch_id)
 
         func = bind(self.__get_step_batch, row_key)
-        return self.__operate_on_table(func)
+        return self.__operate_on_table(func) or NULL_BATCH
 
     def get_latest_step_batch(self, step_name):
         func = bind(self.__get_latest_step_batch, step_name)
-        return self.__operate_on_table(func)
+        return self.__operate_on_table(func) or NULL_BATCH
 
     def get_latest_batch_id(self, step_name):
         row_key = self.get_latest_step_batch(step_name)[0]
@@ -50,7 +50,7 @@ class DataAccessLayer():
     def get_latest_step_batch_with_condition(self, step_name, column, value):
         func = bind(self.__get_latest_step_batch_with_condition, step_name,
                                                                 column, value)
-        return self.__operate_on_table(func)
+        return self.__operate_on_table(func) or NULL_BATCH
     
     def set_step_to_running(self, step_name, start_message):
         func = bind(self.__set_step_to_running, step_name, start_message)
@@ -70,8 +70,9 @@ class DataAccessLayer():
 
     def __operate_on_table(self, func):
         with self.connector as connection:
-            table = connection.table(self.table_name)
-            return func(table)
+            if self.table_name in connection.tables():
+                table = connection.table(self.table_name)
+                return func(table)
 
     def __get_step_batch(self, row_key, table):
         return table.row(row_key)

@@ -19,6 +19,7 @@ def main():
             if section != "Pipeline":
                 stop_notifier(config_file_name, section)
                 start_notifier(config_file_name, section)
+                print('')
     else:
         if config.has_section(notifier_name):
             stop_notifier(config_file_name, notifier_name)
@@ -45,7 +46,7 @@ def stop_notifier(config_file_name, notifier_name):
 
     utils.run_command(stop_command)
 
-def start_notifier(notifier_name, notfier_name):
+def start_notifier(config_file_name, notifier_name):
     start_command = './' + START_SCRIPT_RELATIVE_PATH + ' -c ' + config_file_name
 
     if notifier_name:

@@ -5,7 +5,7 @@ from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
 def main():
-    args = parse_args
+    args = parse_args()
 
     dal = DataAccessLayer(Connector(args.hbase_connection), args.table)
 
@@ -13,7 +13,7 @@ def main():
     batch_id = dal.get_batch_id_from_row_key(row_key)
 
     triggered = False
-    if current_step['current:status'] == 'Started':
+    if current_step and current_step['current:status'] == 'Started':
         triggered = True
         dal.set_step_to_running(args.step, 'Found status of "Started" for ' +
                                       'batch_id ' + str(batch_id))
