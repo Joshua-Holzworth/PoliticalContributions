@@ -2,6 +2,7 @@
 import argparse
 
 import src.python.utils as utils
+import src.python.hdfs_utils as hdfs_utils
 
 LOGGING_NAME = 'contributions_dedup.py'
 LOG_LOCATION = None
@@ -27,6 +28,9 @@ def main():
     global LOG_LOCATION
     LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
     LOG_LOCATION = args.log_location
+
+    hdfs_utils.mkdir(args.output_table_data_directory)
+    hdfs_utils.mkdir(args.fz_table_data_directory)
 
     create_table(args.data_ddl_hql_path, args.db, args.output_table,
                  args.output_table_data_directory)
@@ -77,4 +81,4 @@ def parse_hive_output(exit_code, stdout, stderr):
         exit(exit_code)
 
 if __name__ == '__main__':
-    main()
+    exit(main())

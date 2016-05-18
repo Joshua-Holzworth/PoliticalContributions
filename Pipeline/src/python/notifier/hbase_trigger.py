@@ -47,4 +47,4 @@ def print_json_response(triggered, batch_id):
     print(json_output)
 
 if __name__ == '__main__':
-    main()
+    exit(main())

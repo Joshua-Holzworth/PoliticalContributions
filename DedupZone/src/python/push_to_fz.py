@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/env python3
 import argparse
 
 import src.python.utils as utils
@@ -37,4 +37,4 @@ def get_push_to_fz_command(command_args):
                ' -f ' + PUSH_TO_FZ_HQL_PATH)
 
 if __name__ == '__main__':
-    main()
+    exit(main())

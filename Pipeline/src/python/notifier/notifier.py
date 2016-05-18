@@ -126,8 +126,8 @@ def replace_var_in_params(param_dict, param_literal):
     for param_match in param_matches:
         param_literal = re.sub('\$' + param_match, str(param_dict[param_match]), param_literal)
 
-    utils.log('Final param_literal : ' + param_literal, LOGGING_NAME,
-              utils.INFO, LOG_LOCATION)
+    utils.log('Final param literal : ' + param_literal, LOGGING_NAME,
+              utils.DEBUG, LOG_LOCATION)
 
     return param_literal
 

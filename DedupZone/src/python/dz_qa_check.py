@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/env python3
 import argparse
 
 import src.python.utils as utils
@@ -31,6 +31,8 @@ def main():
     if stdout.strip() == '0':
         utils.log('QA check passed', LOGGING_NAME,
               utils.INFO, args.log_location)
+    else:
+        exit_code = 1
 
     print(stdout)
     utils.print_stderr(stderr)
@@ -48,4 +50,4 @@ def get_qa_check_command(command_args):
     return command
 
 if __name__ == '__main__':
-    main()
+    exit(main())
