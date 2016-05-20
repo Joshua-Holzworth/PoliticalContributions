@@ -5,8 +5,13 @@
 
 CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname $(dirname $CURRENT_DIR))"
+SPARK_HOME=/usr/hdp/current/spark-client
+PY4J=$(ls $SPARK_HOME/python/lib/py4j*)
 
-printf "PYTHONPATH=\${PYTHONPATH}:$PROJECT_ROOT\n" >> ~/.bash_profile
+printf "\n# Written by install.sh script in PoliticalContributions project\n" >> ~/.bash_profile 
+printf "SPARK_HOME=$SPARK_HOME\n" >> ~/.bash_profile
+printf "export SPARK_HOME\n" >> ~/.bash_profile
+printf "PYTHONPATH=\${PYTHONPATH}:$PROJECT_ROOT:\$SPARK_HOME/python:$PY4J\n" >> ~/.bash_profile
 printf "export PYTHONPATH\n" >> ~/.bash_profile
 
 source ~/.bash_profile

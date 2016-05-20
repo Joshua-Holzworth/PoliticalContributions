@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS contributions;
-USE contributions;
+CREATE DATABASE IF NOT EXISTS ${hiveconf:db};
+USE ${hiveconf:db};
 
 SELECT COUNT(*) FROM ${hiveconf:pz_table} pz
 LEFT JOIN ${hiveconf:dz_table} dz
@@ -11,3 +11,5 @@ WHERE
   AND pz.batch_id <= '${hiveconf:pz_batch_max}'
   AND dz.report_number IS NULL
   AND dz.transaction_id IS NULL
+  AND pz.report_number IS NOT NULL
+  AND pz.transaction_id IS NOT NULL

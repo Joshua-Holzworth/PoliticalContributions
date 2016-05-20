@@ -1,91 +1,58 @@
 #!/usr/bin/env python
 #####
-##	Author: Joshua Holzworth
+##    Author: Joshua Holzworth
 #####
+import argparse
 
-import os
-import ConfigParser
-import subprocess
-import sys
-import getopt
-
-
-global config 
-config = None
-
-
+import src.python.utils as utils
+import notifier.utils as notifier_utils
 
 NOTIFIER_CFG = 'cfgDir'
-NOTIFIER_RELATIVE_SCRIPT = 'Notifier/notifier/notifier.py'
-
-def loadConfig(configFileName):
-	print "Reading in config file: "+configFileName
-	global config
-	if config == None:
-		config = ConfigParser.ConfigParser()
-	config.read(configFileName)
-
-	
-def usage():
-	print "start.py -c <ConfigFileName> -n <NotifierName> -A <AllNotifiers--optional>"
-
-
-def getCommandOutput(cmd):
-	proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-	output,error = proc.communicate()
-	return output
-
-def obtainNotifier(notifierName):
-	processFindCmd = "ps aux | grep [n]otifier | grep "+notifierName
-	procResults = getCommandOutput(processFindCmd)
-	return procResults
-
-def setupNotifier(notifierName):
-	if not obtainNotifier(notifierName):
-		notifierParams = '-n ' + notifierName + ' -c ' + config.get(notifierName,NOTIFIER_CFG)
-		notifierCMD = 'python ' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifierParams
-		print 'Running: ' + notifierCMD
-		subprocess.Popen(notifierCMD,shell=True)
-	else:
-		print 'Notifier is already running'
-
-
-CFG_DIR = 'cfgDir'
+NOTIFIER_RELATIVE_SCRIPT = 'notifier/notifier.py'
+PIPELINE_SECTION = 'Pipeline'
+PIPELINE_NAME = 'Name'
+LOG_LOCATION_NAME = 'LogDir'
 
 def main():
-	configFileName = None
-	notifierName = None
-	allNotifiers = False
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hc:n:A")
-	except getopt.GetoptError:
-		usage()
-		sys.exit(0)
-	for opt, arg in opts:
-		if opt == '-h':
-			usage()
-			sys.exit(0)
-		elif opt in ("-c", "--configFileName"):
-			configFileName = arg
-		elif opt in ("-n", "--notifierName"):
-			notifierName = arg
-		elif opt in ("-A", "--AllNotifiers"):
-			allNotifiers = True
+    config_file_name, notifier_name, all_notifiers = parse_args()
 
-	if configFileName is not None:
-		loadConfig(configFileName)
-	else:
-		usage()
-		sys.exit(0)
+    config = utils.load_config(config_file_name)
 
-	if allNotifiers:
-		for section in config.sections():
-			if section != "Pipeline":
-				setupNotifier(section)
-	else:
-		if config.has_section(notifierName):
-			setupNotifier(notifierName)
+    parent_name = config.get(PIPELINE_SECTION, PIPELINE_NAME)
+    log_location = config.get(PIPELINE_SECTION, LOG_LOCATION_NAME)
 
+    if all_notifiers:
+        for section in config.sections():
+            if section != "Pipeline":
+                setup_notifier(config, section, parent_name, log_location)
+    else:
+        if config.has_section(notifier_name):
+            setup_notifier(config, notifier_name, parent_name, log_location)
+
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-c', '--config-file-name', required=True)
+    argparser.add_argument('-n', '--notifier-name')
+    argparser.add_argument('-a', help='Restart all notifiers')
+
+    args = argparser.parse_args()
+
+    if not args.notifier_name and not args.a:
+        argparser.error('Must specify either -n or -a option')
+
+    return args.config_file_name, args.notifier_name, args.a
+
+def setup_notifier(config, notifier_name, parent_name, log_location):
+    if not notifier_utils.obtain_notifier(notifier_name):
+        notifier_params = '-n ' + notifier_name + ' -c ' + config.get(notifier_name, NOTIFIER_CFG)
+        notifier_params += ' -pn "' + parent_name + '" -log ' + log_location
+        notifier_command = 'python ' + NOTIFIER_RELATIVE_SCRIPT + ' ' + notifier_params
+
+        print('Running: ' + notifier_command)
+
+        utils.run_command_async(notifier_command)
+    else:
+        print('Notifier ' + notifier_name + ' is already running')
 
 if __name__ == "__main__":
-	exit(main())
+    exit(main())

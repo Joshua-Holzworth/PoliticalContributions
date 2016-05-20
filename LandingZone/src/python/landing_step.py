@@ -1,103 +1,73 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/env python3
 #######
-##	Author Joshua Holzworth
+##    Author: Joshua Holzworth
+##
+##    Pull LZ files from hdfs
+##    
+##    Parse csvs placed in LLZ
+##    
+##    Push parsed contents to TLZ
+##    
+##    Create metadata in TLZ
+##    
+##    Push all files found in TLZ to PZ
 #######
-
-import getopt
-import sys
+import argparse
 
 from parsing import parser
-#import parser
-import hdfs_utils
-
+import src.python.hdfs_utils as hdfs_utils
 import shutil
 
-#Pull LZ files from hdfs
+def main():
+    args = parse_args()
 
+    #Need to make sure this exists and create it if it doesn't
+    local_landing_zone = 'LLZ'
 
+    setup_llz(args.landing_zone + '/batch_id=' + args.batch_id, local_landing_zone)
+    parse_llz(args.batch_id, args.transition_zone, local_landing_zone, args.partition_cols)
+    write_metadata(args.transition_zone, args.batch_id)
+    push_to_pz(args.transition_zone, args.partition_zone)
+    cleanup(local_landing_zone)
+    cleanup(args.transition_zone)
 
-#Parse csvs placed in LLZ
+def parse_args():
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('-b', '--batch-id', required=True)
+    argparser.add_argument('-l', '--landing-zone', required=True)
+    argparser.add_argument('-t', '--transition-zone', required=True)
+    argparser.add_argument('-p', '--partition-zone', required=True)
+    argparser.add_argument('-c', '--partition-cols', required=True)
+    argparser.add_argument('-pn', '--parent-name', required=True)
+    argparser.add_argument('-log', '--log-location', required=True)
 
-#Push parsed contents to TLZ
+    args = argparser.parse_args()
 
-#Create metadata in TLZ
+    return args
 
-#Push all files found in TLZ to PZ
+#Pulls hdfs landing_zone files onto the local file directory
+def setup_llz(landing_zone, local_landing_zone):
+    parser.validate_output(local_landing_zone)
+    hdfs_utils.get_files(landing_zone, local_landing_zone)
 
-
-
-#Things needs to run
-#batchID
-#LZ
-#PZ
-
-
-#Pulls hdfs landingZone files onto the local file directory
-def setupLLZ(landingZone, localLandingZone):
-	parser.validateOutput(localLandingZone)
-	hdfs_utils.getFiles(landingZone,localLandingZone)
-
-#Parses all files found in localLandingZone
+#Parses all files found in local_landing_zone
 #Puts the parsed files (which are parsed by partition)
-#Into the transitionZone which is located on local file system
-def parseLLZ(batchID,transitionZone,localLandingZone,partitionCols):
-	parser.parseCSV(batchID,transitionZone,localLandingZone,{int(partitionCols)})
+#Into the transition_zone which is located on local file system
+def parse_llz(batch_id, transition_zone, local_landing_zone, partition_cols):
+    parser.parse_csv(batch_id, transition_zone, local_landing_zone, {int(partition_cols)})
 
 #Writes stored metadata from parsing to the transition zone
-def writeMetadata(transitionZone,batchID):
-	parser.writeMetadata(transitionZone,batchID)
+def write_metadata(transition_zone, batch_id):
+    parser.write_metadata(transition_zone, batch_id)
 
 #Pushes all files in transition zone to the partition zone
-def pushToPZ(transitionZone,partitionZone):
-	hdfs_utils.putFiles(transitionZone,partitionZone)
+def push_to_pz(transition_zone, partition_zone):
+    hdfs_utils.put_files(transition_zone, partition_zone)
 
 #Clean the passed in directories
 #This means full deletion of parameter directory
 def cleanup(directory):
-	shutil.rmtree(directory)
+    shutil.rmtree(directory)
 
-def usage():
-	print('landing_step.py -b {BatchID} -l {LandingZone} -t {TransitionZone} -p {PartitionZone} -c {PartitionCols}')
-
-def main():
-	batchID = None
-	landingZone = None
-	transitionZone = None
-	partitionZone = None
-	partitionCols = None
-	#Need to make sure this exists and create it if it doesn't
-	localLandingZone = 'LLZ'
-
-	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hb:l:t:p:c:")
-	except getopt.GetoptError:
-		usage()
-		sys.exit(0)
-	for opt, arg in opts:
-		if opt == '-h':
-			usage()
-			sys.exit(0)
-		elif opt in ("-b", "--batchID"):
-			batchID = arg
-		elif opt in ("-l","--landingZone"):
-			landingZone = arg
-		elif opt in ("-t","--transitionZone"):
-			transitionZone = arg
-		elif opt in ("-p","--partitionZone"):
-			partitionZone = arg
-		elif opt in ("-c","--partitionCols"):
-			partitionCols = arg
-
-	if batchID is None or landingZone is None or partitionZone is None:
-		usage()
-		sys.exit(1)
-
-	setupLLZ(landingZone+'/batch_id='+batchID,localLandingZone)
-	parseLLZ(batchID,transitionZone,localLandingZone,partitionCols)
-	writeMetadata(transitionZone,batchID)
-	pushToPZ(transitionZone,partitionZone)
-	cleanup(localLandingZone)
-	cleanup(transitionZone)
-
-if __name__ == "__main__":
-	exit(main())
+if __name__ == '__main__':
+    exit(main())

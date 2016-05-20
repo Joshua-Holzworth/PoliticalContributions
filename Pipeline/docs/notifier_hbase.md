@@ -23,6 +23,16 @@ case). \_\_set\_step\_to\_stopped can then use that table to get the row key, ge
 data. \_\_operate\_on\_table would then close the connection. All of this requires one open connection
 operation, and a single get of the table.
 
+Because each callback function passed into \_\_operate\_on\_table might take in more arguments than
+just the table, functools.partial is imported as bind. It is aliased as bind because it behaves the same
+way bind does in javascript, and it seemed more expressive that way. functools.partial will "bind"
+arguments to a function and return a new function that has a new method signature without all of the
+parameters that have just been bound. For example, if you have a function f(a, b) and you call 
+functools.partial(f, 2), that call to functools.partial will return a new function (let's call it g)
+with the signature g(b). If you make a call to g, it will essentially be a call to f with the value
+"2" bound to parameter "a", and whatever is passed in to g for the paremeter b will be what's passed
+into parameter b for function f 
+
 Constructor Params:
 * connector - Connector instance that DAL will use to connect to hbase
 * table_name - name of table this DAL will use

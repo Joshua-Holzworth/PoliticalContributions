@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS contributions;
-USE contributions;
+CREATE DATABASE IF NOT EXISTS ${hiveconf:db};
+USE ${hiveconf:db};
 
 CREATE EXTERNAL TABLE IF NOT EXISTS ${hiveconf:table_name} (
   committee_id string,
