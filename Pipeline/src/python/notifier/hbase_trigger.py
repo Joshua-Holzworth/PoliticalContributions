@@ -21,9 +21,7 @@ def main():
     triggered = False
     if current_step_id > finished_prev_step_id:
         triggered = True
-        dal.increment_step(args.step)
-        dal.set_step_to_running(args.step, args.message)
-        current_step_id = dal.get_latest_batch_id(args.step)
+        current_step_id = dal.get_next_batch_id(current_step_id)
 
     print_json_response(triggered, current_step_id)
 
@@ -31,8 +29,6 @@ def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-p', '--prev-step', required=True)
     argparser.add_argument('-s', '--step', required=True)
-    argparser.add_argument('-m', '--message',
-                           help='Finished message or output', required=True)
     argparser.add_argument('-t', '--table', required=True)
     argparser.add_argument('-c', '--hbase-connection',
                            help='HBase connection string', required=True)

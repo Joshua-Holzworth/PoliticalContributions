@@ -115,6 +115,10 @@ def build_hive_command(hql_path, parameters):
 
     return 'hive -f ' + hql_path + param_string
 
+# Reads in valus into the config
+#   config_file_path - The path where configs that want to be loaded are held
+# It should be noted this can be called multiple times and the order the function is called
+# determines if a value inside the config is overriden.
 def load_config(config_file_path, config=None):
     if not config:
         config = configparser.ConfigParser()
