@@ -20,6 +20,7 @@ LOGGING_NAME = 'NotifierConfig'
 
 class NotifierConfig():
     def __init__(self, config, parent_name, log_location):
+        self._parent_name = parent_name
         self._name = parent_name + ' ' + LOGGING_NAME
         self._log_location = log_location
         self.trigger, self.event, self.usher = (None, None, None)
@@ -83,7 +84,7 @@ class NotifierConfig():
         return param_val
 
     def __logging_params(self):
-        return ' -pn "' + self._name + '" -log ' + self._log_location
+        return ' -pn "' + self._parent_name + '" -log ' + self._log_location
 
     # Given a param string literal, it will find all of the variables denoted
     # by a '$' and will substitute them with their associated values if they
@@ -136,18 +137,18 @@ class Trigger():
     def __init__(self, items):
         self.script = items.get(TRIGGER_SCRIPT_OPTION)
         self.delay = float(items.get(TRIGGER_DELAY_OPTION) or TRIGGER_DELAY_DEFAULT)
-        self.param_literal = items.get(PARAMS_OPTION)
+        self.param_literal = items.get(PARAMS_OPTION) or ''
 
 class Event():
     def __init__(self, items):
         self.script = items.get(EVENT_SCRIPT_OPTION)
         self.retry_count = int(items.get(RETRY_COUNT_OPTION) or RETRY_COUNT_DEFAULT)
-        self.param_literal = items.get(PARAMS_OPTION)
+        self.param_literal = items.get(PARAMS_OPTION) or ''
 
 class Usher():
     def __init__(self, items):
         self.script = items.get(USHER_SCRIPT_OPTION)
-        self.param_literal = items.get(PARAMS_OPTION)
+        self.param_literal = items.get(PARAMS_OPTION) or ''
 
 class Parameter():
     def __init__(self, items):

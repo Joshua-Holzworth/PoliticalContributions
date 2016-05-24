@@ -24,7 +24,7 @@ def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-c', '--config-file-name', required=True)
     argparser.add_argument('-n', '--notifier-name')
-    argparser.add_argument('-a', help='Restart all notifiers')
+    argparser.add_argument('-a', action='store_true', help='Restart all notifiers')
 
     args = argparser.parse_args()
 

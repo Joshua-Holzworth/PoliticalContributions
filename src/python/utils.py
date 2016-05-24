@@ -56,8 +56,9 @@ def run_command(command):
     # see http://stackoverflow.com/questions/6466711/what-is-the-return-value-of-os-system-in-python/35362488#35362488
     return os.system(command) >> 8
 
+# Runs a command and returns the process without waiting for process to finish
 def run_command_async(command):
-    process = __get_last_process_in_chain(command)
+    return __get_last_process_in_chain(command)
 
 def capture_command_output(command):
     return_code, stdout, stderr = 1, '', ''

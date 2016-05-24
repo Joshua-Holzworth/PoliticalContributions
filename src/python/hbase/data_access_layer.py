@@ -16,7 +16,7 @@ class DataAccessLayer():
                 connection.create_table(self.table_name, table_schema)
 
     def get_batch_id_from_row_key(self, row_key):
-        return self.__decode_row_key(row_key)[1]
+        return self._decode_row_key(row_key)[1]
 
     def get_next_batch_id(self, batch_id):
         batch_id_int = int(batch_id)
@@ -24,18 +24,18 @@ class DataAccessLayer():
         return str(new_batch_id_int).zfill(NUM_OF_BATCH_ID_DIGITS)
 
     def get_step_batch(self, step_name, batch_id):
-        row_key = self.__build_row_key(step_name, batch_id)
+        row_key = self._build_row_key(step_name, batch_id)
 
-        func = bind(self.__get_step_batch, row_key)
-        return self.__operate_on_table(func) or NULL_BATCH
+        func = bind(self._get_step_batch, row_key)
+        return self._operate_on_table(func) or NULL_BATCH
 
     def get_latest_step_batch(self, step_name):
-        func = bind(self.__get_latest_step_batch, step_name)
-        return self.__operate_on_table(func) or NULL_BATCH
+        func = bind(self._get_latest_step_batch, step_name)
+        return self._operate_on_table(func) or NULL_BATCH
 
     def get_latest_batch_id(self, step_name):
         row_key = self.get_latest_step_batch(step_name)[0]
-        batch_id = self.__decode_row_key(row_key)[1]
+        batch_id = self._decode_row_key(row_key)[1]
 
         return batch_id
 
@@ -43,51 +43,51 @@ class DataAccessLayer():
         row = self.get_latest_step_batch_with_condition(step_name, 
                                                             column, value)
         row_key = row[0] if row else None
-        batch_id = self.__decode_row_key(row_key)[1] if row_key else None
+        batch_id = self._decode_row_key(row_key)[1] if row_key else None
 
         return batch_id
 
     def get_latest_step_batch_with_condition(self, step_name, column, value):
-        func = bind(self.__get_latest_step_batch_with_condition, step_name,
+        func = bind(self._get_latest_step_batch_with_condition, step_name,
                                                                 column, value)
-        return self.__operate_on_table(func) or NULL_BATCH
+        return self._operate_on_table(func) or NULL_BATCH
     
-    def set_step_to_running(self, step_name, start_message):
-        func = bind(self.__set_step_to_running, step_name, start_message)
-        self.__operate_on_table(func)
+    def set_step_to_running(self, step_name, start_message=''):
+        func = bind(self._set_step_to_running, step_name, start_message)
+        self._operate_on_table(func)
 
-    def set_step_to_finished(self, step_name, end_message):
-        func = bind(self.__set_step_to_finished, step_name, end_message)
-        self.__operate_on_table(func)
+    def set_step_to_finished(self, step_name, end_message=''):
+        func = bind(self._set_step_to_finished, step_name, end_message)
+        self._operate_on_table(func)
 
-    def set_step_to_stopped(self, step_name, end_message):
-        func = bind(self.__set_step_to_stopped, step_name, end_message)
-        self.__operate_on_table(func)
+    def set_step_to_stopped(self, step_name, end_message=''):
+        func = bind(self._set_step_to_stopped, step_name, end_message)
+        self._operate_on_table(func)
 
     def increment_step(self, step_name):
-        func = bind(self.__increment_step, step_name)
-        self.__operate_on_table(func)
+        func = bind(self._increment_step, step_name)
+        self._operate_on_table(func)
 
-    def __operate_on_table(self, func):
+    def _operate_on_table(self, func):
         with self.connector as connection:
             if self.table_name in connection.tables():
                 table = connection.table(self.table_name)
                 return func(table)
 
-    def __get_step_batch(self, row_key, table):
+    def _get_step_batch(self, row_key, table):
         return table.row(row_key)
 
-    def __get_latest_step_batch(self, step_name, table):
+    def _get_latest_step_batch(self, step_name, table):
         return next(table.scan(row_prefix=step_name), NULL_BATCH)
 
-    def __get_latest_step_row_key(self, step_name, table):
-        return self.__get_latest_step_batch(step_name, table)[0]
+    def _get_latest_step_row_key(self, step_name, table):
+        return self._get_latest_step_batch(step_name, table)[0]
 
-    def __get_latest_step_batch_id(self, step_name, table):
-        row_key = self.__get_latest_step_row_key(step_name, table)
-        return self.__decode_row_key(row_key)[1]
+    def _get_latest_step_batch_id(self, step_name, table):
+        row_key = self._get_latest_step_row_key(step_name, table)
+        return self._decode_row_key(row_key)[1]
 
-    def __get_latest_step_batch_with_condition(self, step_name, column, value,
+    def _get_latest_step_batch_with_condition(self, step_name, column, value,
                                                table):
         latest_row = None
 
@@ -98,8 +98,8 @@ class DataAccessLayer():
 
         return latest_row
 
-    def __set_step_to_running(self, step_name, start_message, table):
-        row_key = self.__get_latest_step_row_key(step_name, table)
+    def _set_step_to_running(self, step_name, start_message, table):
+        row_key = self._get_latest_step_row_key(step_name, table)
 
         row = table.row(row_key)
         status = row.get('current:status')
@@ -113,8 +113,8 @@ class DataAccessLayer():
             }
             table.put(row_key, update_data)
 
-    def __set_step_to_finished(self, step_name, end_message, table):
-        row_key = self.__get_latest_step_row_key(step_name, table)
+    def _set_step_to_finished(self, step_name, end_message, table):
+        row_key = self._get_latest_step_row_key(step_name, table)
 
         row = table.row(row_key)
         status = row.get('current:status')
@@ -129,8 +129,8 @@ class DataAccessLayer():
         elif status == 'Started' or status == 'Stopped':
             table.put(row_key, { 'current:status': 'Finished' })
 
-    def __set_step_to_stopped(self, step_name, end_message, table):
-        row_key = self.__get_latest_step_row_key(step_name, table)
+    def _set_step_to_stopped(self, step_name, end_message, table):
+        row_key = self._get_latest_step_row_key(step_name, table)
 
         row = table.row(row_key)
         status = row.get('current:status')
@@ -145,19 +145,19 @@ class DataAccessLayer():
         elif status == 'Started':
             table.put(row_key, { 'current:status': 'Stopped' })
 
-    def __increment_step(self, step_name, table):
-        current_row_key = self.__get_latest_step_row_key(step_name, table)
-        current_step_batch_id = self.__decode_row_key(current_row_key)[1]
+    def _increment_step(self, step_name, table):
+        current_row_key = self._get_latest_step_row_key(step_name, table)
+        current_step_batch_id = self._decode_row_key(current_row_key)[1]
         next_batch_id = self.get_next_batch_id(current_step_batch_id)
-        next_row_key = self.__build_row_key(step_name, next_batch_id)
+        next_row_key = self._build_row_key(step_name, next_batch_id)
 
         table.put(next_row_key, {
             'current:status': 'Started',
             'current:attemptNum': '0'
         })
 
-    def __build_row_key(self, step_name, batch_id):
+    def _build_row_key(self, step_name, batch_id):
         return str(step_name) + '.' + str(batch_id)
 
-    def __decode_row_key(self, row_key):
+    def _decode_row_key(self, row_key):
         return tuple(row_key.split('.'))

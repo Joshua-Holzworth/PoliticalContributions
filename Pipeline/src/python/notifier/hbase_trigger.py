@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 import argparse
 
+import src.python.utils as utils
 from src.python.hbase.connector import Connector
 from src.python.hbase.data_access_layer import DataAccessLayer
 
@@ -14,6 +15,9 @@ def main():
 
     dal = DataAccessLayer(Connector(args.hbase_connection), args.table)
 
+    utils.log('Getting previous and current step batch ids from HBase',
+              LOGGING_NAME, utils.DEBUG, args.log_location)
+
     finished_prev_step_id = dal.get_latest_batch_id_with_condition(
         args.prev_step, 'current:status', 'Finished')
     current_step_id = dal.get_latest_batch_id(args.step)
@@ -21,9 +25,9 @@ def main():
     triggered = False
     if current_step_id > finished_prev_step_id:
         triggered = True
-        current_step_id = dal.get_next_batch_id(current_step_id)
+        utils.log('Triggered', LOGGING_NAME, utils.DEBUG, args.log_location)
 
-    print_json_response(triggered, current_step_id)
+    print_json_response(triggered, dal.get_next_batch_id(current_step_id))
 
 def parse_args():
     argparser = argparse.ArgumentParser()
