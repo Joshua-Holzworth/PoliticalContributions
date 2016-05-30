@@ -109,13 +109,6 @@ def __get_last_process_in_chain(command_string):
 
     return process_list[-1]
 
-def build_hive_command(hql_path, parameters):
-    param_string = ''
-    for key in parameters:
-        param_string += ' --hiveconf ' + str(key) + '=' + str(parameters[key])
-
-    return 'hive -f ' + hql_path + param_string
-
 # Reads in valus into the config
 #   config_file_path - The path where configs that want to be loaded are held
 # It should be noted this can be called multiple times and the order the function is called

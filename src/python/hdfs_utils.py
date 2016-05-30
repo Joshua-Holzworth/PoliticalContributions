@@ -25,8 +25,12 @@ def put_files(local_dir, hdfs_dir):
         utils.run_command(push_command)
 
 def mkdir(hdfs_dir):
-        mkdir_command = HDFS_CMD + ' -mkdir -p ' + hdfs_dir
-        utils.run_command(mkdir_command)
+    mkdir_command = HDFS_CMD + ' -mkdir -p ' + hdfs_dir
+    utils.run_command(mkdir_command)
+
+def rmdir(hdfs_dir):
+    rmdir_command = HDFS_CMD + ' -rm -r ' + hdfs_dir
+    utils.run_command(rmdir_command)
 
 def dir_exists(hdfs_dir):
     check_command = HDFS_CMD + ' -test -d ' + hdfs_dir
@@ -42,7 +46,7 @@ def file_exists(hdfs_file_path):
 
     return True if exit_code == 0 else False
 
-def files_exists_in_dir(hdfs_dir):
+def files_exist_in_dir(hdfs_dir):
     command = HDFS_CMD + ' -ls ' + hdfs_dir
 
     exit_code, stdout, stderr = utils.capture_command_output(command)
