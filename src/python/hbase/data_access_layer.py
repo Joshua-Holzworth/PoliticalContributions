@@ -1,3 +1,4 @@
+import json
 from functools import partial as bind
 
 NUM_OF_BATCH_ID_DIGITS = 10
@@ -64,8 +65,8 @@ class DataAccessLayer():
         func = bind(self._set_step_to_stopped, step_name, end_message)
         self._operate_on_table(func)
 
-    def increment_step(self, step_name):
-        func = bind(self._increment_step, step_name)
+    def increment_step(self, step_name, trigger_json=''):
+        func = bind(self._increment_step, step_name, trigger_json)
         self._operate_on_table(func)
 
     def _operate_on_table(self, func):
@@ -145,7 +146,7 @@ class DataAccessLayer():
         elif status == 'Started':
             table.put(row_key, { 'current:status': 'Stopped' })
 
-    def _increment_step(self, step_name, table):
+    def _increment_step(self, step_name, trigger_json, table):
         current_row_key = self._get_latest_step_row_key(step_name, table)
         current_step_batch_id = self._decode_row_key(current_row_key)[1]
         next_batch_id = self.get_next_batch_id(current_step_batch_id)
@@ -153,7 +154,8 @@ class DataAccessLayer():
 
         table.put(next_row_key, {
             'current:status': 'Started',
-            'current:attemptNum': '0'
+            'current:attemptNum': '0',
+            'current:triggerJsonResponse': json.dumps(trigger_json)
         })
 
     def _build_row_key(self, step_name, batch_id):

@@ -12,8 +12,8 @@ def main():
     global LOGGING_NAME
     LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
 
-    param_dict = dict(batch_id=args.batch_id, db=args.db, ez_table=args.ez_table,
-                      dz_table=args.dz_table)
+    param_dict = dict(batch_id=args.batch_id, db=args.db,
+                      ez_table=args.ez_table_name, dz_table=args.dz_table_name)
     command = hive.build_hive_command(args.push_to_ez_hql_path, param_dict)
 
     utils.log('Pushing data from DZ to EZ with command: ' + command, 

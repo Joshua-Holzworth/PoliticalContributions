@@ -24,7 +24,7 @@ class HqlRunner():
         self.fail_on_stderr = fail_on_stderr
 
     def run(self, hql, fail_message='', **kwargs):
-        hive_command = build_hive_command(hql_path, parameters)
+        hive_command = build_hive_command(hql, kwargs)
     
         exit_code, stdout, stderr = utils.capture_command_output(hive_command)
         utils.log('HiveCMD: ' + hive_command, self.logging_name, utils.INFO,

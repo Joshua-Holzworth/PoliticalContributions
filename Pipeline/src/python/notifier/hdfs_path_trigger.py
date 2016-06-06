@@ -33,7 +33,7 @@ def main():
     path_to_check = path + '/batch_id=' + str(next_batch_id)
     utils.log('Checking hdfs path "' + path_to_check + '"', LOGGING_NAME,
               utils.INFO, LOG_LOCATION)
-    new_batch_exists = hdfs_utils.files_exists_in_dir(path_to_check)
+    new_batch_exists = hdfs_utils.files_exist_in_dir(path_to_check)
 
     print_json_response(new_batch_exists)
 

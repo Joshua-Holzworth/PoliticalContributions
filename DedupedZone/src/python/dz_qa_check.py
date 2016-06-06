@@ -21,7 +21,7 @@ def main():
     global LOGGING_NAME
     LOGGING_NAME = args.parent_name + ' ' + LOGGING_NAME
 
-    param_dict = dict(fz_table=args.fz_table, dz_table=args.dz_table,
+    param_dict = dict(fz_table=args.fz_table_name, dz_table=args.dz_table_name,
                       db=args.db, batch_id=args.batch_id)
     qa_check_command = hive.build_hive_command(args.qa_hql_path, param_dict)
 

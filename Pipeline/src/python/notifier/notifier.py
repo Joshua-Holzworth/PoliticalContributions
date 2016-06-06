@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7
+#!/usr/bin/env python2.7
 #####
 ##    Author: Joshua Holzworth
 ##            Garrett Holbrook
@@ -41,7 +41,7 @@ def main():
               utils.DEBUG, LOG_LOCATION)
     dal.create_table_if_not_exists(SCHEMA)
 
-    start_step(notifier_config, dal)
+    start_notifier(notifier_config, dal)
 
 # Even though all arguments are necessary for the proper functioning of
 # the notifier, only log-location is set to true. See check_args for
@@ -103,6 +103,25 @@ def parse_json(json_literal):
         pass
 
     return json_dict 
+
+def start_notifier(notifier_config, dal):
+    latest_step_batch_info = dal.get_latest_step_batch(STEP_NAME)[1]
+    current_state = latest_step_batch_info.get('current:status')
+
+    if not current_state or current_state == 'Finished':
+        start_step(notifier_config, dal)
+    if current_state == 'Stopped' or current_state == 'Started':
+        trigger_json_response = parse_json(latest_step_batch_info.get(
+                                    'current:triggerJsonResponse'))
+        run_event(notifier_config, dal, trigger_json_response)
+        start_step(notifier_config, dal)
+    if current_state == 'Running':
+        print('TODO')
+        # Get attemptstart:1 script string
+        # ps aux for script string
+        # if script still running either kill or attach to proc
+        # run script string
+
 # Ensures that a trigger exists in the config before starting
 # the Trigger-Event-Usher loop
 def start_step(notifier_config, dal):
@@ -110,12 +129,12 @@ def start_step(notifier_config, dal):
         utils.log('No trigger section in configs consumed. Shutting down process.',
                   LOGGING_NAME, utils.ERROR, LOG_LOCATION)
     elif notifier_config.trigger.script:
-        execute_step(notifier_config, dal)
+        run_trigger(notifier_config, dal)
     else:
         utils.log('FAILURE', LOGGING_NAME, utils.ERROR, LOG_LOCATION)
 
 # Begins the Trigger-Event-Usher loop
-def execute_step(notifier_config, dal):
+def run_trigger(notifier_config, dal):
     utils.log('Starting Trigger-Event-Usher loop', LOGGING_NAME,
               utils.INFO, LOG_LOCATION)
 
@@ -132,15 +151,9 @@ def execute_step(notifier_config, dal):
             if triggered == 'true' or triggered == True:
                 utils.log('Incrementing step in HBase', LOGGING_NAME, utils.DEBUG,
                           LOG_LOCATION)
-                dal.increment_step(STEP_NAME)
-                event_successful, output = run_event(notifier_config, dal, json_response)
-
-                if event_successful:
-                    json_response = parse_json(output)
-                    execute_usher_script(notifier_config, json_response)
-                else:
-                    pass # TODO fail somehow, alert user of event script failure
-                    
+                dal.increment_step(STEP_NAME, json_response)
+                run_event(notifier_config, dal, json_response)
+ 
         time.sleep(notifier_config.trigger.delay)
 
 def execute_trigger_script(notifier_config):
@@ -163,15 +176,17 @@ def execute_trigger_script(notifier_config):
 # and will retry it a configurable number of times. If the script returns 0
 # then it will set the step to finished with the output of the script
 def run_event(notifier_config, dal, json_response):
-    current_attempt = 0
+    latest_step_batch_info = dal.get_latest_step_batch(STEP_NAME)[1]
+    current_attempt = latest_step_batch_info.get('current:attemptNum') or 0
+    current_attempt = int(current_attempt)
     event_successful = False
-    output = 'Event has not been run'
+    output = '{}'
 
     if notifier_config.event:
         if current_attempt < notifier_config.event.retry_count and not event_successful:
             event_command = notifier_config.get_event_command(json_response)
 
-            utils.log('Event attempt ' + str(current_attempt + 1), LOGGING_NAME,
+            utils.log('Event attempt ' + str(current_attempt), LOGGING_NAME,
                       utils.INFO, LOG_LOCATION)
             utils.log('Setting step to "Running" in HBase', LOGGING_NAME,
                       utils.DEBUG, LOG_LOCATION)
@@ -211,7 +226,11 @@ def run_event(notifier_config, dal, json_response):
                   utils.DEBUG, LOG_LOCATION)
         dal.set_step_to_finished(STEP_NAME)
 
-    return event_successful, output
+    if event_successful:
+        json_response = parse_json(output)
+        execute_usher_script(notifier_config, json_response)
+    else:
+        pass # TODO fail somehow, alert user of event script failure
 
 def execute_usher_script(notifier_config, json_response):
     usher_command = notifier_config.get_usher_command(json_response)
