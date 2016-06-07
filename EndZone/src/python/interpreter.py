@@ -16,7 +16,7 @@ sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sc)
 
 def main():
-    table_name = 'fz_orc'
+    table_name = 'ez'
     sqlContext.sql('USE contributions')
     fz_table = sqlContext.sql('SELECT * FROM ' + table_name)
 
